@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+    {% if firstLogin %}
+        <h1>Bevor es los geht</h1>
+        <p>Wähle einen Usernamen und erzähle etwas über dich.</p>
+    {% endif %}
+    {{ form_errors(updateProfileForm) }}
+    {{ form_start(updateProfileForm) }}
+    {{ form_row(updateProfileForm.name) }}<br/>
+    {{ form_row(updateProfileForm.description) }}<br/>
+    {{ form_row(updateProfileForm.pictureUrl) }}<br/>
+    {{ form_end(updateProfileForm) }}
+{% endblock %}

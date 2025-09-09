@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% set userProfile = user.getUserProfile %}
+
+{% block content %}
+    {{ userProfile.name }}
+    /
+    {{ userProfile.description }}
+
+    {% if userProfile.pictureUrl %} {% else %} kein Bild {% endif %}
+
+    <a href="{{ path('app.profile.update', {id: user.id}) }}">Ändern</a>
+{% endblock %}

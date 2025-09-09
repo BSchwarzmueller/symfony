@@ -1,0 +1,11 @@
+{% block navigation %}
+    <nav class="main-nav">
+        <div {{ vue_component('NavMenu') }}></div>
+        <div {{ vue_component('NavProfileActions',{
+            'name': user is not null ? user.userProfile.name : null,
+            'profilePath': user is not null ? path('app.profile.show', {'id': user.id}) : null,
+            'loginPath': path('app.login')
+        }) }}></div>
+
+    </nav>
+{% endblock %}
