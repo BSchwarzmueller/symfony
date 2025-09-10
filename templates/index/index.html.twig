@@ -3,5 +3,5 @@
 {% block title %}Start{% endblock %}
 
 {% block content %}
-<div {{ vue_component('asyncBlTable', {apiUrl: 'https://api.openligadb.de/getbltable/bl1/2025' }) }}></div>
+<div {{ vue_component('asyncBlTable', {apiUrl: config.get('BL1_TABLE_API_URL') }) }}></div>
 {% endblock %}

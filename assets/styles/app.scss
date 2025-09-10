@@ -1,6 +1,3 @@
-body {
-    background-color: lightgray;
-}
 
 $unit: 8px;
 
@@ -12,9 +9,27 @@ $xl: $unit*16;
 
 $success: rgba(0, 255, 0, 0.5);
 $error: rgba(255, 0, 0, 0.5);
-
-
 $button-neutral-color: #547808;
+
+$background-color-dark: rgba(28, 28, 28, 0.9);
+$background-color-darkest: rgba(28, 28, 28, 0.99);
+$light-gray: rgba(255, 255, 255, 0.25);
+
+body {
+    padding: 0;
+    margin: 0;
+    background-color: $background-color-dark;
+    color: white;
+    a,
+    a:visited {
+        color: white;
+    }
+}
+
+.content-wrapper {
+    margin:0 auto;
+    max-width: 1280px;
+}
 
 .button {
     padding: $tn $sm;
@@ -28,12 +43,6 @@ $button-neutral-color: #547808;
     cursor: pointer;
 }
 
-.main-nav {
-    display: flex;
-    padding: $sm $md;
-    justify-content: space-between;
-    align-items: center;
-}
 .flash-container {
     position: absolute;
     left:0;
@@ -59,3 +68,5 @@ $button-neutral-color: #547808;
 .flash-error {
     background-color: $error;
 }
+
+@import './navigation.scss';
