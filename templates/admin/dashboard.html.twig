@@ -4,4 +4,10 @@
     <div class="admin__users_table">
         {% include 'admin/user-table.html.twig' with { 'users': users } %}
     </div>
+    <div class="admin__clubs">
+        {% include 'admin/clubs.html.twig' with { 'clubs': clubs } %}
+    </div>
+    <div class="admin__matches">
+        {% include 'admin/games/index.html.twig' with { 'games': games } %}
+    </div>
 {% endblock %}

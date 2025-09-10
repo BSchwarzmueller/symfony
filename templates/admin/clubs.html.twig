@@ -1,0 +1,21 @@
+<h2>Clubs</h2>
+{% if clubs is empty %}
+    <a href="{{ path('admin.clubs.update') }}">Clubs via API laden</a>
+{% else %}
+<table>
+    <thead>
+    <tr>
+        <th>Verein</th>
+        <th>Logo Url</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for club in clubs %}
+        <tr>
+            <td>{{ club.name }}</td>
+            <td><img style="max-width:44px;max-height:44px;" src="{{ club.logoUrl }}" /></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endif %}
