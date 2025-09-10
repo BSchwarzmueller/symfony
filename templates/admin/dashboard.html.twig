@@ -1,5 +1,6 @@
 {% block body %}
     <h1>DASHBOARD</h1>
+    <a href="{{ path('admin.config.index') }}"><button>Config</button></a>
     <div class="admin__users_table">
         {% include 'admin/user-table.html.twig' with { 'users': users } %}
     </div>

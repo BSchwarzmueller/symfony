@@ -10,4 +10,6 @@
     {% if userProfile.pictureUrl %} {% else %} kein Bild {% endif %}
 
     <a href="{{ path('app.profile.update', {id: user.id}) }}">Ändern</a>
+    <br>
+    <a href="{{ path('app.logout') }}">Logout</a>
 {% endblock %}

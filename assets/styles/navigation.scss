@@ -1,0 +1,32 @@
+.main-nav {
+    width: 100%;
+    background-color: $background-color-darkest;
+    div.content-wrapper {
+        display: flex;
+        padding: $tn $sm;
+        margin: 0 auto;
+        align-items: center;
+        a {
+            text-decoration: none;
+        }
+
+        border-bottom: 1px solid $light-gray;
+    }
+}
+.main-nav-items {
+    display: flex;
+    width: 100%;
+
+    .logo {
+        position: relative;
+        left:0;
+        top:$sm;
+    }
+    ul {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        gap: $sm;
+        list-style: none;
+    }
+}

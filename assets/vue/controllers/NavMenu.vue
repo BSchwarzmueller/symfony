@@ -1,9 +1,11 @@
-<script setup>
-const props = defineProps({
-    user: Object,
-});
+<script setup lang="ts">
+const props = defineProps<{ homePath: string, }>()
 </script>
 
 <template>
-    <div>NAV-VUE</div>
+    <a class="logo" :href="props.homePath">LOGO</a>
+        <ul>
+            <li><a :href="props.homePath">LEADERBOARD</a></li>
+            <li><a :href="props.homePath">...</a></li>
+        </ul>
 </template>
