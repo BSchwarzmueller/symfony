@@ -10,6 +10,10 @@ $md: $unit*4;
 $lg: $unit*8;
 $xl: $unit*16;
 
+$success: rgba(0, 255, 0, 0.5);
+$error: rgba(255, 0, 0, 0.5);
+
+
 $button-neutral-color: #547808;
 
 .button {
@@ -24,9 +28,34 @@ $button-neutral-color: #547808;
     cursor: pointer;
 }
 
+.main-nav {
+    display: flex;
+    padding: $sm $md;
+    justify-content: space-between;
+    align-items: center;
+}
+.flash-container {
+    position: absolute;
+    left:0;
+    right:0;
+    top:0;
+    max-width: 300px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+.flash {
+    top: $sm;
+    right: 0;
+    left: 0;
+    padding: $sm;
+    max-width: 300px;
+    margin: $sm auto;
+    border: 1px solid black;
+}
 .flash-success {
-    color: green;
+    background-color: $success;
 }
 .flash-error {
-    color: red;
+    background-color: $error;
 }

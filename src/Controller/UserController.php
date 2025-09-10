@@ -45,6 +45,7 @@ final class UserController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
+            // check if the name already exists
             $userProfile = $this->getUserByName($user->getUserProfile()?->getName(), $userProfileRepository);
             if($userProfile && $userProfile->getId() !== $user->getUserProfile()?->getId()) {
                 $this->addFlash(
@@ -54,6 +55,7 @@ final class UserController extends AbstractController
                 return $this->redirectToRoute('app.profile.update', ['id' => $user->getId()]);
             }
 
+            // save user profile
             $entityManager->persist($user);
             $entityManager->flush();
 
@@ -66,6 +68,7 @@ final class UserController extends AbstractController
         }
 
         return $this->render('profile/update.html.twig', [
+            'user' => $user,
             'updateProfileForm' => $form,
             'firstLogin' => $firstLogin,
         ]);
