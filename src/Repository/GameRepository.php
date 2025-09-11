@@ -18,29 +18,36 @@ class GameRepository extends ServiceEntityRepository
         parent::__construct($registry, Game::class);
     }
 
-    public function findByMatchday(int $matchday): array
+    public function findByMatchday(int $matchday, ?string $sort = 'ASC'): array
     {
-        return $this->findBy([
-            'matchday' => $matchday,
-        ]);
+        return $this->createQueryBuilder('g')
+            // Passe die Property-Namen an dein Entity an:
+            ->leftJoin('g.homeClub', 'hc')->addSelect('hc')
+            ->leftJoin('g.awayClub', 'ac')->addSelect('ac')
+            ->where('g.matchday = :md')
+            ->setParameter('md', $matchday)
+            ->orderBy('g.date', $sort)
+            ->getQuery()
+            ->getResult();
+
     }
 
     /**
      * @throws \Exception
      */
     public function create(
-        int $openLigaId,
-        int $homeId,
-        int $awayId,
-        int|null $homeGoals,
-        int|null $awayGoals,
+        int               $openLigaId,
+        int               $homeId,
+        int               $awayId,
+        int|null          $homeGoals,
+        int|null          $awayGoals,
         DateTimeImmutable $date,
-        int $matchday,
-        ?string $competition = 'bl1',
-        ?string $season = '2025',
+        int               $matchday,
+        ?string           $competition = 'bl1',
+        ?string           $season = '2025',
     ): void
     {
-        if($this->findOneBy(['openLigaId' => $openLigaId]) !== null) {
+        if ($this->findOneBy(['openLigaId' => $openLigaId]) !== null) {
             return;
         }
         $em = $this->getEntityManager();
@@ -65,6 +72,7 @@ class GameRepository extends ServiceEntityRepository
         $this->getEntityManager()->persist($game);
         $this->getEntityManager()->flush();
     }
+
     public function getFutureGames(): array
     {
         return $this->findBy([

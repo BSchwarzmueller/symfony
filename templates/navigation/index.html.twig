@@ -1,3 +1,7 @@
+{% if user is not defined %}
+    {% set user = app.session.get('user') %}
+{% endif %}
+
 {% block navigation %}
     <nav class="main-nav">
         <div class="content-wrapper">

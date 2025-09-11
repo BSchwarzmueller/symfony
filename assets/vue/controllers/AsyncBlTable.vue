@@ -43,11 +43,11 @@ onMounted(async () => {
     <div v-else>
         {{ msg }}
         <div v-if="items.length > 0" class="table">
-            <table>
+            <table class="bl-table">
                 <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Spiele</th>
+                    <th></th>
+                    <th></th>
                     <th>S</th>
                     <th>U</th>
                     <th>N</th>

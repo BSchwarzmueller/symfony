@@ -8,6 +8,6 @@
         "skipLibCheck": true
     },
     "files": [
-        "assets/vue/controllers/asyncBlTable.vue"
+        "assets/vue/controllers/AsyncBlTable.vue"
     ]
 }

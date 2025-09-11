@@ -12,6 +12,7 @@
         "doctrine/doctrine-migrations-bundle": "^3.4",
         "doctrine/orm": "^3.5",
         "easycorp/easyadmin-bundle": "^4.24",
+        "symfony/cache": "7.3.*",
         "symfony/console": "7.3.*",
         "symfony/dotenv": "7.3.*",
         "symfony/flex": "^2",
@@ -24,7 +25,8 @@
         "symfony/security-bundle": "7.3.*",
         "symfony/ux-vue": "^2.30",
         "symfony/webpack-encore-bundle": "^2.3",
-        "symfony/yaml": "7.3.*"
+        "symfony/yaml": "7.3.*",
+        "ext-http": "*"
     },
     "config": {
         "allow-plugins": {
