@@ -1,6 +1,14 @@
 version: "3.9"
 
 services:
+    redis:
+        image: redis:7
+        container_name: redis-cache
+        restart: unless-stopped
+        ports:
+            - "6379:6379"
+        volumes:
+            -   redis_data:/data
     database:
         image: mysql:8.0.32
         container_name: mysql-db
@@ -25,3 +33,4 @@ services:
 
 volumes:
     db_data:
+    redis_data:

@@ -42,6 +42,7 @@ final class IndexController extends AbstractController
 
         $currentPlayerBet = [];
         $user = $this->getUser();
+
         if ($user !== null) {
             $userId = (int) $user->getId();
             $currentPlayerBet = $this->getCurrentPlayerBetCached($cache, $betRepository, $userId, $currentMatchday);
@@ -56,12 +57,15 @@ final class IndexController extends AbstractController
         return $this->render('index/index.html.twig', [
             'currentMatchday' => $currentMatchday,
             'lastMatchday' => $lastMatchday,
-            'currentMatchdayGames' => $dataFormatService->createMatchData($currentMatchdayGames),
+            'currentMatchdayGames' => $currentMatchdayGames,
             'currentPlayerBet' => $currentPlayerBet,
-            'lastMatchdayGames' => $lastMatchday > 0 ? $dataFormatService->createMatchData($lastMatchdayGames) : [],
+            'lastMatchdayGames' => $lastMatchday > 0 ? $lastMatchdayGames : [],
         ]);
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     private function getGamesForMatchdayCached(
         CacheInterface $cache,
         GameRepository $gameRepository,
@@ -71,7 +75,7 @@ final class IndexController extends AbstractController
 
         return $cache->get($cacheKey, function (ItemInterface $item) use ($gameRepository, $matchday) {
             $item->expiresAfter(self::CACHE_TTL);
-            return $gameRepository->findByMatchday($matchday);
+            return $gameRepository->findArrayByMatchday($matchday);
         });
     }
 
@@ -85,7 +89,7 @@ final class IndexController extends AbstractController
 
         return $cache->get($cacheKey, function (ItemInterface $item) use ($betRepository, $currentMatchday, $userId) {
             $item->expiresAfter(self::CACHE_TTL);
-            return $betRepository->findCurrentPlayerBet($currentMatchday, $userId);
+            return $betRepository->findArrayCurrentPlayerBet($currentMatchday, $userId);
         });
     }
 

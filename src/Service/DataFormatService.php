@@ -14,10 +14,6 @@ readonly class DataFormatService
     public function createMatchData(array $games): array
     {
         return array_map(static function ($g) {
-            if(!$g instanceof Game) {
-                throw new InvalidArgumentException('Invalid game type: '.get_class($g));
-            }
-
             $home = $g->getHomeClub();
             $away = $g->getAwayClub();
 

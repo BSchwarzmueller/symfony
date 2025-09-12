@@ -31,6 +31,18 @@ class GameRepository extends ServiceEntityRepository
             ->getResult();
 
     }
+    public function findArrayByMatchday(int $matchday, ?string $sort = 'ASC'): array
+    {
+        return $this->createQueryBuilder('g')
+            // Passe die Property-Namen an dein Entity an:
+            ->leftJoin('g.homeClub', 'hc')->addSelect('hc')
+            ->leftJoin('g.awayClub', 'ac')->addSelect('ac')
+            ->where('g.matchday = :md')
+            ->setParameter('md', $matchday)
+            ->orderBy('g.date', $sort)
+            ->getQuery()
+            ->getArrayResult();
+    }
 
     /**
      * @throws \Exception

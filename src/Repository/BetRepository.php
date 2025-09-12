@@ -59,7 +59,7 @@ class BetRepository extends ServiceEntityRepository
         }
     }
 
-    public function findCurrentPlayerBet(int $currentMatchday, int $userId): array
+    public function findArrayCurrentPlayerBet(int $currentMatchday, int $userId): array
     {
         $games = $this->gameRepository->findBy(['matchday' => $currentMatchday]);
         $gamesIds = array_map(fn(Game $game) => $game->getId(), $games);
