@@ -47,21 +47,17 @@ onMounted(async () => {
                 <thead>
                 <tr>
                     <th></th>
-                    <th></th>
                     <th>S</th>
                     <th>U</th>
                     <th>N</th>
-                    <th>Diff</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr v-for="item in items" :key="item.id">
                     <td>{{ item.teamName }}</td>
-                    <td>{{ item.matches }}</td>
                     <td>{{ item.won }}</td>
                     <td>{{ item.draw }}</td>
                     <td>{{ item.lost }}</td>
-                    <td>{{ item.goalDiff }}</td>
                 </tr>
                 </tbody>
             </table>

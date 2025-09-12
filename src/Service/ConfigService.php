@@ -15,13 +15,14 @@ readonly class ConfigService
      */
     public function get(string $key, ?string $default = null): ?string
     {
-        $config = $this->cache->get('config_'.$key, function () use ($key, $default) {
+        return $this->cache->get('config_'.$key, function () use ($key, $default) {
             return $this->repo->get($key, $default);
         });
-
-        return $config;
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function set(string $key, ?string $value): void
     {
         $this->repo->set($key, $value);

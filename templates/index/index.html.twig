@@ -5,14 +5,24 @@
 {% block content %}
     <div class="content-grid">
         <div>
-            <div {{ vue_component('AsyncBlTable', { apiUrl: config.get('BL1_TABLE_API_URL') }) }}></div>
+            <div {{ vue_component('AsyncBlTable', {
+                apiUrl: config.get('BL1_TABLE_API_URL')
+            }) }}></div>
         </div>
         <div class="matchday-container">
             <div class="matchday"
-                {{ vue_component('Matchday', { games: currentMatchday, interaction: true }) }}></div>
-            <hr>
+                {{ vue_component('Matchday', {
+                    games: currentMatchdayGames,
+                    matchday: currentMatchday,
+                    interaction: true
+                }) }}></div>
             <div class="matchday"
-                {{ vue_component('Matchday', { games: lastMatchday, interaction: false }) }}></div>
+                {{ vue_component('Matchday', {
+                    games: lastMatchdayGames,
+                    matchday: lastMatchday,
+                    interaction: false
+                }) }}></div>
+            <button>Alle Spiele</button>
         </div>
         <div>
             lb

@@ -20,34 +20,38 @@ final class IndexController extends AbstractController
      */
     #[Route('/', name: 'app.index')]
     public function index(
-        Request $request,
-        GameRepository $gameRepository,
-        ConfigService $configService,
-        CacheInterface $cache,
+        Request           $request,
+        GameRepository    $gameRepository,
+        ConfigService     $configService,
+        CacheInterface    $cache,
         DataFormatService $dataFormatService
-    ): Response {
+    ): Response
+    {
         $session = $request->getSession();
         $session->set('user', $this->getUser());
 
-        $matchday = $configService->get('currentMatchday');
-        $lastMatchday = $matchday === 1 ? 1 : $matchday - 1;
+        $currentMatchday = $configService->get('currentMatchday');
+        $lastMatchday = $currentMatchday - 1;
 
-        $cacheKeyMatchday = sprintf('games.view.matchday.%d', $matchday);
-        $cacheKeyLastMatchday = sprintf('games.view.matchday.%d', $lastMatchday);
-
-        $currentMatchday = $cache->get($cacheKeyMatchday, function (ItemInterface $item) use ($gameRepository, $matchday) {
-            $item->expiresAfter(60*60);
-            return $gameRepository->findByMatchday($matchday);
+        $cacheKeyCurrentMatchday = sprintf('games.view.matchday.%d', $currentMatchday);
+        $currentMatchdayGames = $cache->get($cacheKeyCurrentMatchday, function (ItemInterface $item) use ($gameRepository, $currentMatchday) {
+            $item->expiresAfter(60 * 60);
+            return $gameRepository->findByMatchday($currentMatchday);
         });
 
-        $lastMatchday = $cache->get($cacheKeyLastMatchday, function (ItemInterface $item) use ($gameRepository, $lastMatchday) {
-            $item->expiresAfter(60*60);
-            return $gameRepository->findByMatchday($lastMatchday);
-        });
+        if ($lastMatchday > 0) {
+            $cacheKeyLastMatchday = sprintf('games.view.matchday.%d', $lastMatchday);
+            $lastMatchdayGames = $cache->get($cacheKeyLastMatchday, function (ItemInterface $item) use ($gameRepository, $lastMatchday) {
+                $item->expiresAfter(60 * 60);
+                return $gameRepository->findByMatchday($lastMatchday);
+            });
+        }
 
         return $this->render('index/index.html.twig', [
-            'currentMatchday' => $dataFormatService->createMatchData($currentMatchday),
-            'lastMatchday' => $dataFormatService->createMatchData($lastMatchday),
+            'currentMatchday' => $currentMatchday,
+            'lastMatchday' => $lastMatchday,
+            'currentMatchdayGames' => $dataFormatService->createMatchData($currentMatchdayGames),
+            'lastMatchdayGames' => $lastMatchday > 0 ? $dataFormatService->createMatchData($lastMatchdayGames) : [],
         ]);
     }
 }

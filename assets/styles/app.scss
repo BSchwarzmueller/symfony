@@ -11,9 +11,10 @@ $success: rgba(0, 255, 0, 0.5);
 $error: rgba(255, 0, 0, 0.5);
 $button-neutral-color: #547808;
 
-$background-color-dark: rgba(28, 28, 28, 0.9);
+$primary-red: #982222;
+$background-color-dark: rgba(40,40,40,0.75);
 $background-color-darkest: rgba(28, 28, 28, 0.99);
-$light-gray: rgba(255, 255, 255, 0.25);
+$light-gray-border: rgba(200, 200, 200, 0.25);
 
 $smFont: 0.75rem;
 $mdFont: 1rem;
@@ -21,7 +22,7 @@ $mdFont: 1rem;
 body {
     padding: 0;
     margin: 0;
-    background-color: $background-color-dark;
+    background-color: $background-color-darkest;
     color: white;
     a,
     a:visited {
@@ -77,11 +78,15 @@ body {
 .content-grid {
     padding: $md 0;
     display: grid;
-    grid-template-columns: 1fr 3fr 1fr;
-    gap: $md;
+    grid-template-columns: 1fr 4fr 1fr;
+    gap: $sm;
 }
 .bl-table {
-    font-size: $smFont;
+    font-size: 12px;
+    background-color: $background-color-dark;
+    padding: $tn $sm;
+    border: 1px solid $light-gray-border;
+    border-radius: $tn;
 }
 .matchday-container {
     display: flex;
@@ -92,33 +97,46 @@ body {
     .matchday {
         width: 100%;
     }
+    padding-top: $md;
 }
 .matchday-table {
-    background-color: $background-color-darkest;
+    background-color: $background-color-dark;
     width: 100%;
-    padding: $sm;
-    border: 1px solid white;
-
+    padding: 0 0 $sm 0;
+    margin: $md auto;
+    border: 1px solid $light-gray-border;
+    border-radius: $tn;
+    .label {
+        text-align: center;
+        font-size: 2rem;
+        margin: 0 0 $sm 0;
+        background-color: $primary-red;
+        padding: $tn $sm;
+        border:1px solid $light-gray-border;
+        border-radius: $tn $tn 0 0;
+    }
+    .date {
+        margin: $sm $tn;
+    }
     .game {
-        margin: $md 0;
-        .date {
-            margin: $tn 0;
-        }
+        margin: $sm 0 $md 0;
+        border-bottom: 1px solid $light-gray-border;
         .wrapper {
             display: flex;
             justify-content: space-between;
             align-items: center;
             .home, .away {
                 width: 49%;
+                font-size: 1.25rem;
                 display: flex;
-                padding: $sm $md;
+                align-items: center;
+                justify-content: space-between;
+                padding: $tn $sm;
                 position: relative;
             }
-            .home {
-                justify-content: flex-end;
-            }
-            .away {
-                justify-content: flex-start;
+            .home-goals, .away-goals {
+                font-size: 2rem;
+                font-weight: bold;
             }
             .bet-home, .bet-away {
                 display: flex;
@@ -126,6 +144,19 @@ body {
                 align-items: center;
                 padding: $sm;
                 position: relative;
+                span {
+                    padding: $tn $sm;
+                    border: 1px solid $light-gray-border;
+                    font-weight: bold;
+                    font-size: 1.5rem;
+                    user-select: none;
+                    &:last-child {
+                        border-left: none;
+                    }
+                    &:hover {
+                        cursor: pointer;
+                    }
+                }
             }
             .bet-home {
                 left:0;
