@@ -14,7 +14,9 @@
                 {{ vue_component('Matchday', {
                     games: currentMatchdayGames,
                     matchday: currentMatchday,
-                    interaction: true
+                    bet: currentPlayerBet,
+                    interaction: true,
+                    userId: app.user is not null ? app.user.id : null
                 }) }}></div>
             <div class="matchday"
                 {{ vue_component('Matchday', {

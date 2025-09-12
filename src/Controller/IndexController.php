@@ -2,9 +2,12 @@
 
 namespace App\Controller;
 
+use App\Entity\Bet;
+use App\Repository\BetRepository;
 use App\Repository\GameRepository;
 use App\Service\ConfigService;
 use App\Service\DataFormatService;
+use Doctrine\Common\Collections\Collection;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,43 +18,98 @@ use Symfony\Contracts\Cache\ItemInterface;
 
 final class IndexController extends AbstractController
 {
+    private const CACHE_TTL = 3600;
+
     /**
      * @throws InvalidArgumentException
      */
     #[Route('/', name: 'app.index')]
     public function index(
-        Request           $request,
-        GameRepository    $gameRepository,
-        ConfigService     $configService,
-        CacheInterface    $cache,
+        Request $request,
+        GameRepository $gameRepository,
+        BetRepository $betRepository,
+        ConfigService $configService,
+        CacheInterface $cache,
         DataFormatService $dataFormatService
-    ): Response
-    {
+    ): Response {
         $session = $request->getSession();
         $session->set('user', $this->getUser());
 
-        $currentMatchday = $configService->get('currentMatchday');
+        $currentMatchday = (int) $configService->get('currentMatchday');
         $lastMatchday = $currentMatchday - 1;
 
-        $cacheKeyCurrentMatchday = sprintf('games.view.matchday.%d', $currentMatchday);
-        $currentMatchdayGames = $cache->get($cacheKeyCurrentMatchday, function (ItemInterface $item) use ($gameRepository, $currentMatchday) {
-            $item->expiresAfter(60 * 60);
-            return $gameRepository->findByMatchday($currentMatchday);
-        });
+        $currentMatchdayGames = $this->getGamesForMatchdayCached($cache, $gameRepository, $currentMatchday);
 
+        $currentPlayerBet = [];
+        $user = $this->getUser();
+        if ($user !== null) {
+            $userId = (int) $user->getId();
+            $currentPlayerBet = $this->getCurrentPlayerBetCached($cache, $betRepository, $userId, $currentMatchday);
+            $currentPlayerBet = $this->mapBets($currentPlayerBet);
+        }
+
+        $lastMatchdayGames = [];
         if ($lastMatchday > 0) {
-            $cacheKeyLastMatchday = sprintf('games.view.matchday.%d', $lastMatchday);
-            $lastMatchdayGames = $cache->get($cacheKeyLastMatchday, function (ItemInterface $item) use ($gameRepository, $lastMatchday) {
-                $item->expiresAfter(60 * 60);
-                return $gameRepository->findByMatchday($lastMatchday);
-            });
+            $lastMatchdayGames = $this->getGamesForMatchdayCached($cache, $gameRepository, $lastMatchday);
         }
 
         return $this->render('index/index.html.twig', [
             'currentMatchday' => $currentMatchday,
             'lastMatchday' => $lastMatchday,
             'currentMatchdayGames' => $dataFormatService->createMatchData($currentMatchdayGames),
+            'currentPlayerBet' => $currentPlayerBet,
             'lastMatchdayGames' => $lastMatchday > 0 ? $dataFormatService->createMatchData($lastMatchdayGames) : [],
         ]);
+    }
+
+    private function getGamesForMatchdayCached(
+        CacheInterface $cache,
+        GameRepository $gameRepository,
+        int $matchday
+    ): array {
+        $cacheKey = $this->cacheKeyGames($matchday);
+
+        return $cache->get($cacheKey, function (ItemInterface $item) use ($gameRepository, $matchday) {
+            $item->expiresAfter(self::CACHE_TTL);
+            return $gameRepository->findByMatchday($matchday);
+        });
+    }
+
+    private function getCurrentPlayerBetCached(
+        CacheInterface $cache,
+        BetRepository $betRepository,
+        int $userId,
+        int $currentMatchday
+    ): array {
+        $cacheKey = $this->cacheKeyCurrentPlayerBet($userId);
+
+        return $cache->get($cacheKey, function (ItemInterface $item) use ($betRepository, $currentMatchday, $userId) {
+            $item->expiresAfter(self::CACHE_TTL);
+            return $betRepository->findCurrentPlayerBet($currentMatchday, $userId);
+        });
+    }
+
+    private function mapBets(array $bets): array
+    {
+        $out = [];
+        foreach ($bets as $b) {
+            $game = $b->getGameId();
+            $out[] = [
+                'gameId' => $game?->getId(),
+                'homeGoals' => $b->getHomeGoals(),
+                'awayGoals' => $b->getAwayGoals(),
+            ];
+        }
+        return $out;
+    }
+
+    private function cacheKeyGames(int $matchday): string
+    {
+        return sprintf('games.view.matchday.%d', $matchday);
+    }
+
+    private function cacheKeyCurrentPlayerBet(int $userId): string
+    {
+        return sprintf('player.currentBet.%d', $userId);
     }
 }

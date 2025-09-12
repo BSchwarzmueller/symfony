@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import {computed, ref} from 'vue'
+import axios from 'axios'
+import {makeLogger} from "ts-loader/dist/logger";
 
 interface GameInterface {
     id: number
@@ -11,14 +13,23 @@ interface GameInterface {
     awayGoals: number | null
 }
 
+interface BetInterface {
+    gameId: number,
+    homeGoals: number,
+    awayGoals: number
+}
+
 const props = defineProps<{
     games: GameInterface[]
     matchday: number
     interaction: boolean
+    userId: number | null
+    bet: Array<BetInterface> | null
 }>()
 
-type GameGroup = { day: string; time: string; games: GameInterface[] }
+const loading = ref<boolean>(false)
 
+type GameGroup = { day: string; time: string; games: GameInterface[] }
 const gameGroups = computed<GameGroup[]>(() => {
     const groups: GameGroup[] = []
     const indexByKey = new Map<string, number>()
@@ -48,6 +59,17 @@ const results = ref<Result[]>(props.games.map((game: GameInterface): Result => (
     awayGoals: 0,
 })))
 
+if(props.bet) {
+    props.bet.forEach(
+        (bet: BetInterface) => {
+            console.log(bet.gameId, bet.homeGoals, bet.awayGoals)
+            const game = results.value.find((g: Result) => g.id === bet.gameId)
+            if (!game) return
+            game.homeGoals = bet.homeGoals
+            game.awayGoals = bet.awayGoals
+        }
+    )
+}
 
 const addHomeGoals = (amount: number, id: number) => {
     const game = results.value.find((g: Result) => g.id === id)
@@ -62,7 +84,29 @@ const addAwayGoals = (amount: number, id: number) => {
 }
 
 const submit = () => {
-    // todo: submit results via api save userId, results, etc.
+    if (!props.userId) return
+    loading.value = true
+    results.value.forEach(async (r: Result) => {
+        try {
+            const res = await axios.post('/api/v1/bet/create', {
+                userId: Number(props.userId),
+                gameId: Number(r.id),
+                homeGoals: Number(r.homeGoals),
+                awayGoals: Number(r.awayGoals),
+            }, {
+                withCredentials: true,
+                headers: {'Content-Type': 'application/json'},
+            });
+
+            if (res.status !== 201) {
+                console.error('Unexpected status', res.status, res.statusText, res.data);
+            }
+        } catch (e: any) {
+            console.error('Request failed', e.response?.status, e.response?.data ?? e.message);
+        } finally {
+            loading.value = false
+        }
+    })
 }
 </script>
 
@@ -117,7 +161,11 @@ const submit = () => {
                 </div>
             </div>
         </div>
-        <div v-if="props.interaction" class="submit-group">
+        <div v-if="loading" class="loading">
+            Loading...
+        </div>
+        <div v-else-if="props.interaction" class="submit-group">
+            Übersicht: Tore Insgesamt Siege unentschiedn usw.
             <button @click="submit">Submit</button>
         </div>
     </div>
