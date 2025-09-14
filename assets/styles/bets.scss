@@ -1,7 +1,18 @@
 .bet-container {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
     margin:$tn;
     padding:$sm 0;
+    position: relative;
+    .loading {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(0, 0, 0, 0.88);
+        font-size: 2rem;
+    }
     .bet-game, .game-info {
         padding: $tn;
     }
@@ -15,15 +26,48 @@
         width: 100%;
         display: grid;
         grid-template-columns: 3fr 1fr 3fr;
-        div {
-            text-align: center;
+        align-items: center;
+        justify-items: center;
+        font-weight: bold;
+        .home, .away {
+            font-size: 1rem;
+        }
+        .result {
+            font-size: 1.75rem;
         }
     }
     .bet-result {
         display:grid;
-        grid-template-columns: 1fr 2fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr;
+        padding:$tn 0 $tn 0;
         div {
             text-align: center;
+        }
+        .home, .away {
+            display: flex;
+            justify-content: center;
+        }
+        .submit {
+            .button:disabled {
+                opacity: 0.5;
+            }
+        }
+        .addButton, .subButton {
+            display:block;
+            padding: 0;
+            margin: $tn;
+            height:24px;
+            width:24px;
+            align-content: center;
+            font-weight: bold;
+            font-size: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            cursor: pointer;
+            user-select: none;
+            &:active {
+                background-color: white;
+                color: black;
+            }
         }
     }
 }

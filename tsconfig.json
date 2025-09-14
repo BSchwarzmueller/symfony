@@ -1,13 +1,18 @@
 {
     "compilerOptions": {
-        "target": "esnext",
-        "module": "esnext",
+        "target": "ES2020",
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
         "strict": true,
-        "moduleResolution": "node",
-        "esModuleInterop": true,
-        "skipLibCheck": true
+        "jsx": "preserve",
+        "skipLibCheck": true,
+        "isolatedModules": true,
+        "useDefineForClassFields": true,
+        "types": []
     },
-    "files": [
-        "assets/vue/controllers/AsyncBlTable.vue"
+    "include": [
+        "assets/**/*.ts",
+        "assets/**/*.vue",
+        "assets/**/*.d.ts",
     ]
 }

@@ -7,6 +7,7 @@ use App\Entity\Game;
 use App\Entity\User;
 use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
 
@@ -22,7 +23,7 @@ class BetRepository extends ServiceEntityRepository
     /**
      * @throws \RuntimeException
      */
-    public function store(int $userId, int $gameId, int $homeGoals, int $awayGoals): bool
+    public function store(int $userId, int $gameId, int $homeGoals, int $awayGoals, string $status): bool
     {
         $em = $this->getEntityManager();
 
@@ -30,7 +31,7 @@ class BetRepository extends ServiceEntityRepository
             $userRef = $em->getReference(User::class, $userId);
             $gameRef = $em->getReference(Game::class, $gameId);
 
-            $existingBet = $em->getRepository(Bet::class)->findOneBy([
+            $existingBet = $this->findOneBy([
                 'userId' => $userRef,
                 'gameId' => $gameRef,
             ]);
@@ -47,6 +48,7 @@ class BetRepository extends ServiceEntityRepository
             $bet->setGameId($gameRef);
             $bet->setHomeGoals($homeGoals);
             $bet->setAwayGoals($awayGoals);
+            $bet->setStatus($status);
             $bet->setCreatedAt(new DateTimeImmutable());
 
             $em->persist($bet);
@@ -65,5 +67,23 @@ class BetRepository extends ServiceEntityRepository
         $gamesIds = array_map(fn(Game $game) => $game->getId(), $games);
 
         return $this->findBy(['userId' => $userId, 'gameId' => $gamesIds]);
+    }
+
+    /**
+     * @throws ORMException
+     */
+    public function getBetArrayByUser(int $userId): array
+    {
+        return $this->createQueryBuilder('b')
+            ->innerJoin('b.userId', 'u')
+            ->innerJoin('b.gameId', 'g')->addSelect('g')
+            ->leftJoin('g.homeClub', 'hc')->addSelect('hc')
+            ->leftJoin('g.awayClub', 'ac')->addSelect('ac')
+            ->where('u.id = :uid')
+            ->setParameter('uid', $userId)
+            ->orderBy('b.createdAt', 'DESC')
+            ->setMaxResults(50)
+            ->getQuery()
+            ->getArrayResult();
     }
 }
