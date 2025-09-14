@@ -1,0 +1,29 @@
+.bet-container {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+    margin:$tn;
+    padding:$sm 0;
+    .bet-game, .game-info {
+        padding: $tn;
+    }
+
+    .game-info {
+        display: flex;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .bet-game {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 3fr 1fr 3fr;
+        div {
+            text-align: center;
+        }
+    }
+    .bet-result {
+        display:grid;
+        grid-template-columns: 1fr 2fr 1fr;
+        div {
+            text-align: center;
+        }
+    }
+}

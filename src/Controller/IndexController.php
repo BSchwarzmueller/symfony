@@ -32,9 +32,6 @@ final class IndexController extends AbstractController
         CacheInterface $cache,
         DataFormatService $dataFormatService
     ): Response {
-        $session = $request->getSession();
-        $session->set('user', $this->getUser());
-
         $currentMatchday = (int) $configService->get('currentMatchday');
         $lastMatchday = $currentMatchday - 1;
 

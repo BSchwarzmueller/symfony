@@ -10,21 +10,15 @@
             }) }}></div>
         </div>
         <div class="matchday-container">
-            <div class="matchday"
-                {{ vue_component('Matchday', {
-                    games: currentMatchdayGames,
-                    matchday: currentMatchday,
-                    bet: currentPlayerBet,
-                    interaction: true,
-                    userId: app.user is not null ? app.user.id : null
-                }) }}></div>
-            <div class="matchday"
-                {{ vue_component('Matchday', {
-                    games: lastMatchdayGames,
-                    matchday: lastMatchday,
-                    interaction: false
-                }) }}></div>
-            <button>Alle Spiele</button>
+            {% if app.user %}
+                <a href="{{ path('app.bets.show', { id: app.user.id }) }}">
+                    <button class="button">Meine Wetten</button>
+                </a>
+            {% else %}
+                <a href="{{ path('app.register') }}">
+                    <button class="button">Registrieren</button>
+                </a>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

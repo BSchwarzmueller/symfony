@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+    <div class="bet-wrapper">
+        {% for bet in bets %}
+            {% set game = bet.gameId %}
+            <div class="bet-container">
+                <div class="game-info">
+                    <div class="date">{{ game.date|date('d.M H:m') }}</div>
+                    <div class="competition">{{ game.competition }}</div>
+                    <div class="matchday">
+                        {{ game.matchday }}. {{ game.competition == 'dfb' ? 'Runde' : 'Spieltag' }}
+                    </div>
+                </div>
+
+                <div class="bet-game">
+                    <div class="home">{{ game.homeClub.name }}</div>
+                    <div class="result">{{ game.homeGoals }} : {{ game.awayGoals }}</div>
+                    <div class="away">{{ game.awayClub.name }}</div>
+                </div>
+
+                <div class="bet-stats">
+                    todo: tendenz
+                </div>
+                <div class="bet-result">
+                    <div class="home">
+                        + -
+                    </div>
+                    <div class="submit">
+                        <button class="button">Tippen</button>
+                    </div>
+                    <div class="away">
+                        + -
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
