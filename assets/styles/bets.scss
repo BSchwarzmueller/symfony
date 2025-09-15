@@ -61,12 +61,7 @@
         .home, .away {
             width: 100%;
             font-size: clamp(1rem, 3vw, 1.25rem);
-        }
-        .home {
-            text-align: right;
-        }
-        .away {
-            text-align: left;
+            text-align: center;
         }
         .result {
             font-size: clamp(1.5rem, 3vw, 1.75rem);
