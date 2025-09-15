@@ -12,19 +12,23 @@ const openGames = ref<GameInterface[]>(props.games.filter((game: GameInterface) 
 const openBets = ref<GameInterface[]>(props.games.filter((game: GameInterface) => game.type === 'openBet'))
 const closedBets = ref<GameInterface[]>(props.games.filter((game: GameInterface) => game.type === 'closedBet'))
 
-function moveToOpenBets(gameId: number) {
+console.log(openGames.value)
+
+function moveToOpenBets(gameId: number, homeGoals: number, awayGoals: number) {
     const index = openGames.value.findIndex(g => g.gameId === gameId)
     if (index !== -1) {
         const [game] = openGames.value.splice(index, 1)
         game.type = 'openBet'
+        game.betHomeGoals = homeGoals
+        game.betAwayGoals = awayGoals
         openBets.value.unshift(game)
     }
 }
 </script>
 
 <template>
-    <div class="bet-container">
-        <h2>Offene Wetten</h2>
+    <div class="bet-wrapper">
+        <h2 v-if="openGames.length > 0" class="bet-header">Offene Wetten <span>({{openGames.length }})</span></h2>
         <div v-for="game in openGames" :key="game.gameId">
             <Bet
                 :pop-bet="moveToOpenBets"
@@ -39,14 +43,14 @@ function moveToOpenBets(gameId: number) {
                 :competition="game.competition"
                 :season="game.season"
                 :matchday="game.matchday"
-                :date="game.date"
+                :date="game.date.date"
                 :bet-home-goals="game.betHomeGoals"
                 :bet-away-goals="game.betAwayGoals"
                 :bet-status="game.betStatus"
                 :bet-points="game.betPoints"
             />
         </div>
-        <h2>Aktive Wetten</h2>
+        <h2 v-if="openBets.length > 0" class="bet-header">Aktive Wetten <span>({{openBets.length }})</span></h2>
         <div v-for="game in openBets" :key="game.gameId">
             <Bet
                 :pop-bet="moveToOpenBets"
@@ -61,14 +65,14 @@ function moveToOpenBets(gameId: number) {
                 :competition="game.competition"
                 :season="game.season"
                 :matchday="game.matchday"
-                :date="game.date"
+                :date="game.date.date"
                 :bet-home-goals="game.betHomeGoals"
                 :bet-away-goals="game.betAwayGoals"
                 :bet-status="game.betStatus"
                 :bet-points="game.betPoints"
             />
         </div>
-        <h2>Vergangene Wetten</h2>
+        <h2 v-if="closedBets.length > 0" class="bet-header">Vergangene Wetten <span>({{closedBets.length }})</span></h2>
         <div v-for="game in closedBets" :key="game.gameId">
             <Bet
                 :pop-bet="moveToOpenBets"
@@ -83,7 +87,7 @@ function moveToOpenBets(gameId: number) {
                 :competition="game.competition"
                 :season="game.season"
                 :matchday="game.matchday"
-                :date="game.date"
+                :date="game.date.date"
                 :bet-home-goals="game.betHomeGoals"
                 :bet-away-goals="game.betAwayGoals"
                 :bet-status="game.betStatus"

@@ -14,16 +14,16 @@ const props = defineProps<{
         competition: string;
         season: string;
         matchday: number;
-        date: { date: string; }
+        date: string;
         betHomeGoals: number;
         betAwayGoals: number;
         betStatus: string | null;
         betPoints: number | null;
-        popBet: (gameId: number) => void;
+        popBet: (gameId: number, homeGoals: number, awayGoals: number) => void;
 }>();
 
-const homeGoals = ref<number>(props.betHomeGoals === -1 ? -1 : props.betHomeGoals)
-const awayGoals = ref<number>(props.betAwayGoals === -1 ? -1 : props.betAwayGoals)
+const homeGoals = ref<number>(props.betHomeGoals)
+const awayGoals = ref<number>(props.betAwayGoals)
 const homeGoalsBuffer = ref<number>(-1)
 const awayGoalsBuffer = ref<number>(-1)
 const loading = ref<boolean>(false)
@@ -68,18 +68,23 @@ const submitBet = async () => {
     } finally {
         await new Promise(r => setTimeout(r, 1000));
         loading.value = false
-        props.popBet(props.gameId)
+        props.popBet(props.gameId, homeGoals.value, awayGoals.value)
     }
 
 }
 
 const formattedDate = computed(() => {
-    const date = new Date(props.date.date);
+    const date = new Date(props.date);
+    console.log(props.date)
     return date.toLocaleDateString('de-DE', {
+        weekday: 'short',
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
-    });
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+    })
 })
 const matchdayLabel = computed(() => {
     let label = ''
@@ -104,7 +109,9 @@ const matchdayLabel = computed(() => {
 
         <div class="bet-game">
             <div class="home">{{ props.homeClub }}</div>
-            <div class="result">{{ homeGoals === -1 ? '-' : homeGoals }} : {{ awayGoals === -1 ? '-' : awayGoals }}</div>
+            <div class="result">
+                {{ homeGoals === -1 ? '-' : homeGoals }} : {{ awayGoals === -1 ? '-' : awayGoals }}
+            </div>
             <div class="away">{{ props.awayClub }}</div>
         </div>
 

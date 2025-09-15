@@ -1,10 +1,10 @@
 {% extends 'base.html.twig' %}
 {% set isUser = app.user is not null and app.user.id == userId %}
 {% block content %}
-    <div class="bet-wrapper">
-        <div {{ vue_component('BetView', {
-            games,
-            interaction: isUser
-        }) }}></div>
-    </div>
+
+    <div {{ vue_component('BetView', {
+        games,
+        interaction: isUser
+    }) }}></div>
+
 {% endblock %}
