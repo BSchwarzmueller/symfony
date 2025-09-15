@@ -6,12 +6,14 @@
     "require": {
         "php": ">=8.2",
         "ext-ctype": "*",
+        "ext-http": "*",
         "ext-iconv": "*",
         "doctrine/dbal": "^3",
         "doctrine/doctrine-bundle": "^2.16",
         "doctrine/doctrine-migrations-bundle": "^3.4",
         "doctrine/orm": "^3.5",
         "easycorp/easyadmin-bundle": "^4.24",
+        "predis/predis": "^3.2",
         "symfony/cache": "7.3.*",
         "symfony/console": "7.3.*",
         "symfony/dotenv": "7.3.*",
@@ -25,8 +27,7 @@
         "symfony/security-bundle": "7.3.*",
         "symfony/ux-vue": "^2.30",
         "symfony/webpack-encore-bundle": "^2.3",
-        "symfony/yaml": "7.3.*",
-        "ext-http": "*"
+        "symfony/yaml": "7.3.*"
     },
     "config": {
         "allow-plugins": {

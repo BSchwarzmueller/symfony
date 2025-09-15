@@ -29,15 +29,6 @@ final class Version20250905140708 extends AbstractMigration
               PRIMARY KEY(id)
             ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB
         ');
-
-        /*
-         * Create an admin user. change pw immediately after creation!!!
-         */
-        $adminPassword = hash('crc32c', 'administrator');
-        $this->addSql('
-            INSERT INTO user (id,email,roles,password)
-            VALUES(1, "admin@test.de", JSON_ARRY("ROLE_ADMIN"), '.$adminPassword.')
-        ');
     }
 
     public function down(Schema $schema): void

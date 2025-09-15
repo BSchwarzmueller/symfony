@@ -1,17 +1,25 @@
-version: "3.9"
-
 services:
+    php:
+        build: .
+        container_name: php
+        depends_on:
+            - mysql
+            - redis
+        ports:
+            - "8000:80"
+        volumes:
+            - ./:/var/www
     redis:
         image: redis:7
-        container_name: redis-cache
+        container_name: redis
         restart: unless-stopped
         ports:
             - "6379:6379"
         volumes:
-            -   redis_data:/data
-    database:
+            - redis_data:/data
+    mysql:
         image: mysql:8.0.32
-        container_name: mysql-db
+        container_name: mysql
         restart: unless-stopped
         environment:
             MYSQL_DATABASE: app
@@ -20,14 +28,6 @@ services:
             MYSQL_ROOT_PASSWORD: root
         ports:
             - "3306:3306"
-        command:
-            - --character-set-server=utf8mb4
-            - --collation-server=utf8mb4_unicode_ci
-        healthcheck:
-            test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u $$MYSQL_USER -p$$MYSQL_PASSWORD || exit 1"]
-            interval: 10s
-            timeout: 5s
-            retries: 5
         volumes:
             - db_data:/var/lib/mysql
 
