@@ -21,10 +21,9 @@ class SystemConfigRepository extends ServiceEntityRepository
         return $this->findBy([], ['configKey' => 'ASC']);
     }
 
-    public function get(string $key, ?string $default = null): ?string
+    public function get(string $key, ?string $default = null): SystemConfig|null
     {
-        $config = $this->findOneBy(['configKey' => $key]);
-        return $config?->getConfigValue() ?? $default;
+        return $this->findOneBy(['configKey' => $key]);
     }
 
     public function set(string $key, ?string $value): void

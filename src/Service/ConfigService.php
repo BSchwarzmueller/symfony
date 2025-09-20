@@ -16,7 +16,8 @@ readonly class ConfigService
     public function get(string $key, ?string $default = null): ?string
     {
         return $this->cache->get('config_'.$key, function () use ($key, $default) {
-            return $this->repo->get($key, $default);
+            $config = $this->repo->get($key);
+            return $config?->getConfigValue() ?? $default;
         });
     }
 

@@ -169,4 +169,38 @@ class Game
 
         return $this;
     }
+
+    public function getAvgHomeGoals(): ?GameStats
+    {
+        return $this->avgHomeGoals;
+    }
+
+    public function setAvgHomeGoals(GameStats $avgHomeGoals): static
+    {
+        // set the owning side of the relation if necessary
+        if ($avgHomeGoals->getGame() !== $this) {
+            $avgHomeGoals->setGame($this);
+        }
+
+        $this->avgHomeGoals = $avgHomeGoals;
+
+        return $this;
+    }
+
+    public function getNo(): ?GameStats
+    {
+        return $this->no;
+    }
+
+    public function setNo(GameStats $no): static
+    {
+        // set the owning side of the relation if necessary
+        if ($no->getGame() !== $this) {
+            $no->setGame($this);
+        }
+
+        $this->no = $no;
+
+        return $this;
+    }
 }

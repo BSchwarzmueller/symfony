@@ -5,16 +5,17 @@ namespace App\Controller\Admin;
 use App\Entity\SystemConfig;
 use App\Repository\SystemConfigRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Cache\CacheInterface;
 
 class SystemConfigController extends AbstractController
 {
-
     #[Route(path: '/admin/config/add', name: 'admin.config.add')]
     public function addSystemConfig(
         Request $request,
@@ -56,11 +57,16 @@ class SystemConfigController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+
+    /**
+     * @throws InvalidArgumentException
+     */
     #[Route(path: '/admin/config', name: 'admin.config.index')]
     public function updateSystemConfig(
         Request                $request,
         SystemConfigRepository $repo,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        CacheInterface $cache
     ): Response
     {
         $form = $this->getForm($repo->getAll());
@@ -70,10 +76,12 @@ class SystemConfigController extends AbstractController
             $data = $form->getData();
 
             foreach ($data as $key => $value) {
-                $config = $repo->find($key);
+                $config = $repo->get($key);
                 if ($config) {
-                    $config->setValue($value);
+                    $config->setConfigValue($value);
                     $em->persist($config);
+
+                    $cache->delete('config_' . $key);
                 }
             }
             $em->flush();

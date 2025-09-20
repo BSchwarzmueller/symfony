@@ -59,6 +59,7 @@ const submitBet = async () => {
         if (response.status === 201) {
             loadingMessage.value = response.data.message
         } else {
+            console.log(response)
             loadingMessage.value = response.status + ' - Error submitting bet'
         }
 

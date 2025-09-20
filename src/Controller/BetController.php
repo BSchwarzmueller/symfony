@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Event\BetPlacedEvent;
 use App\Repository\BetRepository;
 use App\Repository\GameRepository;
 use App\Repository\UserRepository;
@@ -12,6 +13,7 @@ use Psr\Cache\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -32,7 +34,8 @@ class BetController extends AbstractController
                                 private readonly GameRepository  $gameRepository,
                                 private readonly ConfigService   $configService,
                                 private readonly CacheInterface  $cache,
-                                private readonly LoggerInterface $logger
+                                private readonly LoggerInterface $logger,
+                                private readonly EventDispatcherInterface $dispatcher
     )
     {
     }
@@ -88,6 +91,14 @@ class BetController extends AbstractController
             }
 
             $this->deleteCaches((int)$data['userId']);
+
+            $event = new BetPlacedEvent(
+                (int)$data['gameId'],
+                (int)$data['homeGoals'],
+                (int)$data['awayGoals']
+            );
+
+            $this->dispatcher->dispatch($event, BetPlacedEvent::NAME);
 
             return $this->json(['message' => 'Bet created successfully'], 201);
         } catch (Exception|InvalidArgumentException $e) {
