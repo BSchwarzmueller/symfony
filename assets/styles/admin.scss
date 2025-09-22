@@ -1,0 +1,9 @@
+.admin-games-tables {
+    display: flex;
+    padding: $md;
+    margin: 0 auto;
+    justify-content: space-evenly;
+    td {
+        padding:$tn;
+    }
+}

@@ -1,0 +1,5 @@
+{% extends '/admin/dashboard.html.twig' %}
+
+{% block admin_dashboard_content %}
+    {% include '/admin/users/user-table.html.twig' with { users } %}
+{% endblock %}

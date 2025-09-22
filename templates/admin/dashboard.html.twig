@@ -1,13 +1,34 @@
+{% extends 'base.html.twig' %}
+
 {% block body %}
-    <h1>DASHBOARD</h1>
-    <a href="{{ path('admin.config.index') }}"><button>Config</button></a>
-    <div class="admin__users_table">
-        {% include 'admin/user-table.html.twig' with { 'users': users } %}
-    </div>
-    <div class="admin__clubs">
-        {% include 'admin/clubs.html.twig' with { 'clubs': clubs } %}
-    </div>
-    <div class="admin__matches">
-        {% include 'admin/games/index.html.twig' with { 'games': games } %}
-    </div>
+
+    {% block admin_dashboard %}
+        <div class="admin-dashboard">
+            <div class="admin-dashboard-navigation">
+                {% block admin_dashboard_navigation %}<a href="{{ path('admin.dashboard.index') }}">
+                        <button>Dashboard</button>
+                    </a>
+                    <a href="{{ path('admin.config.index') }}">
+                        <button>CONFIG</button>
+                    </a>
+                    <a href="{{ path('admin.users.index') }}">
+                        <button>USERS</button>
+                    </a>
+                    <a href="{{ path('admin.clubs.index') }}">
+                        <button>CLUBS</button>
+                    </a>
+                    <a href="{{ path('admin.games.index') }}">
+                        <button>GAMES</button>
+                    </a>
+                {% endblock %}
+            </div>
+
+            <div class="admin-dashboard-content">
+                {% block admin_dashboard_content %}
+                    dashboard
+                {% endblock %}
+            </div>
+        </div>
+    {% endblock %}
 {% endblock %}
+

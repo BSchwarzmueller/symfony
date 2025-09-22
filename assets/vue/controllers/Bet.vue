@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, ref} from 'vue';
+import {computed, onMounted, ref} from 'vue';
 import axios from "axios";
 
 const props = defineProps<{
@@ -22,12 +22,19 @@ const props = defineProps<{
         popBet: (gameId: number, homeGoals: number, awayGoals: number) => void;
 }>();
 
+interface CommunityBetInterface {
+    homeGoals: number,
+    awayGoals: number,
+    numberOfVotes: number,
+}
+
 const homeGoals = ref<number>(props.betHomeGoals)
 const awayGoals = ref<number>(props.betAwayGoals)
 const homeGoalsBuffer = ref<number>(-1)
 const awayGoalsBuffer = ref<number>(-1)
 const loading = ref<boolean>(false)
 const loadingMessage = ref<string>('')
+const communityBet = ref<CommunityBetInterface | null>(null)
 
 const add = (team: string, points: number) => {
     if (team === 'home') {
@@ -59,7 +66,6 @@ const submitBet = async () => {
         if (response.status === 201) {
             loadingMessage.value = response.data.message
         } else {
-            console.log(response)
             loadingMessage.value = response.status + ' - Error submitting bet'
         }
 
@@ -76,7 +82,7 @@ const submitBet = async () => {
 
 const formattedDate = computed(() => {
     const date = new Date(props.date);
-    console.log(props.date)
+
     return date.toLocaleDateString('de-DE', {
         weekday: 'short',
         day: '2-digit',
@@ -97,6 +103,17 @@ const matchdayLabel = computed(() => {
     }
     return label
 });
+
+onMounted(async () => {
+
+    if(props.betStatus !== 'open') return
+
+    const response = await axios.get('/game/stats/' + props.gameId)
+
+    if(response.status === 200 && response.data !== null) {
+        communityBet.value = response.data
+    }
+})
 
 </script>
 
@@ -135,6 +152,9 @@ const matchdayLabel = computed(() => {
                 <span class="addButton" @click="add('away', 1)">+</span>
                 <span class="subButton" @click="add('away', -1)">-</span>
             </div>
+        </div>
+        <div v-if="JSON.stringify(communityBet) !== '{}'" class="bet-community">
+            <span>{{ communityBet?.homeGoals }}</span> : <span>{{ communityBet?.awayGoals }}</span> ( {{ communityBet?.numberOfVotes }} Votes )
         </div>
     </div>
 </template>

@@ -1,0 +1,22 @@
+<table>
+    <thead>
+    <tr>
+        <th>Spieltag</th>
+        <th>Liga</th>
+        <th>Heim</th>
+        <th></th>
+        <th></th>
+        <th>Auswärts</th>
+    </tr>
+    </thead>
+    {% for game in games %}
+       <tr>
+           <td>{{ game.matchDay }}</td>
+           <td>{{ game.competition }}</td>
+           <td>{{ game.homeClub.name }}</td>
+           <td>{{ game.homeGoals ?? '-' }}</td>
+           <td>{{ game.awayGoals ?? '-' }}</td>
+           <td>{{ game.awayClub.name }}</td>
+       </tr>
+    {% endfor %}
+</table>

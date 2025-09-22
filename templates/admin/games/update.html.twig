@@ -1,4 +1,5 @@
-{% block content %}
+{% extends '/admin/dashboard.html.twig' %}
+{% block admin_dashboard_content %}
     {{ form_start(form) }}
     {{ form_widget(form) }}
     <button>Abholen</button>
