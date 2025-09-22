@@ -1,6 +1,6 @@
 export interface GameInterface {
     type: string;
-    id: number;
+    gameId: number;
     userId: number;
     homeClub: string;
     awayClub: string;

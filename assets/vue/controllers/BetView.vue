@@ -13,7 +13,7 @@ const openBets = ref<GameInterface[]>(props.games.filter((game: GameInterface) =
 const closedBets = ref<GameInterface[]>(props.games.filter((game: GameInterface) => game.type === 'closedBet'))
 
 function moveToOpenBets(gameId: number, homeGoals: number, awayGoals: number) {
-    const index = openGames.value.findIndex(g => g.id === gameId)
+    const index = openGames.value.findIndex(g => g.gameId === gameId)
     if (index !== -1) {
         const [game] = openGames.value.splice(index, 1)
         game.type = 'openBet'
@@ -22,17 +22,18 @@ function moveToOpenBets(gameId: number, homeGoals: number, awayGoals: number) {
         openBets.value.unshift(game)
     }
 }
+
 </script>
 
 <template>
     <div class="bet-wrapper">
         <h2 v-if="openGames.length > 0" class="bet-header">Offene Wetten <span>({{openGames.length }})</span></h2>
-        <div v-for="game in openGames" :key="game.id">
+        <div v-for="game in openGames" :key="game.gameId">
             <Bet
                 :pop-bet="moveToOpenBets"
                 :interaction="props.interaction"
                 :type="game.type"
-                :game-id="game.id"
+                :game-id="game.gameId"
                 :user-id="game.userId"
                 :home-club="game.homeClub"
                 :away-club="game.awayClub"
@@ -49,12 +50,12 @@ function moveToOpenBets(gameId: number, homeGoals: number, awayGoals: number) {
             />
         </div>
         <h2 v-if="openBets.length > 0" class="bet-header">Aktive Wetten <span>({{openBets.length }})</span></h2>
-        <div v-for="game in openBets" :key="game.id">
+        <div v-for="game in openBets" :key="game.gameId">
             <Bet
                 :pop-bet="moveToOpenBets"
                 :interaction="false"
                 :type="game.type"
-                :game-id="game.id"
+                :game-id="game.gameId"
                 :user-id="game.userId"
                 :home-club="game.homeClub"
                 :away-club="game.awayClub"
@@ -71,12 +72,12 @@ function moveToOpenBets(gameId: number, homeGoals: number, awayGoals: number) {
             />
         </div>
         <h2 v-if="closedBets.length > 0" class="bet-header">Vergangene Wetten <span>({{closedBets.length }})</span></h2>
-        <div v-for="game in closedBets" :key="game.id">
+        <div v-for="game in closedBets" :key="game.gameId">
             <Bet
                 :pop-bet="moveToOpenBets"
                 :interaction="props.interaction"
                 :type="game.type"
-                :game-id="game.id"
+                :game-id="game.gameId"
                 :user-id="game.userId"
                 :home-club="game.homeClub"
                 :away-club="game.awayClub"

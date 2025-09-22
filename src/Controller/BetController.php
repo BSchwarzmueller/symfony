@@ -77,7 +77,7 @@ class BetController extends AbstractController
             $data = json_decode($request->getContent(), true);
 
             if (!isset($data['userId'], $data['gameId'], $data['homeGoals'], $data['awayGoals'])) {
-                return $this->json(['error' => 'Missing required fields'], 400);
+                return $this->json(['error' => $data], 400);
             }
 
             if (!$betRepository->store(
@@ -106,6 +106,16 @@ class BetController extends AbstractController
         }
     }
 
+
+    #[Route(path: 'bets/process', name:'app.bets.process')]
+    public function processBets() {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $openBets = $this->betRepository->getAllOpenBets();
+        $currentMatchday = $this->configService->get('currentMatchday');
+
+        // itteration über bets, wenn matchday passt dann ergebnis checken und spieler gutschreiben
+    }
 
     /**
      * @throws InvalidArgumentException
@@ -206,7 +216,7 @@ class BetController extends AbstractController
         foreach ($closedBets as $bet) {
             $out[] = [
                 'type' => 'closedBet',
-                'id' => $bet['gameId']['id'],
+                'gameId' => $bet['gameId']['id'],
                 'userId' => $userId,
                 'homeClub' => $bet['gameId']['homeClub']['name'],
                 'awayClub' => $bet['gameId']['awayClub']['name'],
@@ -225,7 +235,7 @@ class BetController extends AbstractController
         foreach ($openBets as $bet) {
             $out[] = [
                 'type' => 'openBet',
-                'id' => $bet['gameId']['id'],
+                'gameId' => $bet['gameId']['id'],
                 'userId' => $userId,
                 'homeClub' => $bet['gameId']['homeClub']['name'],
                 'awayClub' => $bet['gameId']['awayClub']['name'],

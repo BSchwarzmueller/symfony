@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import {computed, onMounted, ref} from 'vue';
+import {computed, onMounted, onUnmounted, onUpdated, ref} from 'vue';
 import axios from "axios";
+import BetTimer from "./BetTimer.vue";
 
 const props = defineProps<{
         interaction: boolean,
@@ -110,11 +111,15 @@ onMounted(async () => {
 
     const response = await axios.get('/game/stats/' + props.gameId)
 
-    if(response.status === 200 && response.data !== null) {
+    if(response.status === 200) {
         communityBet.value = response.data
     }
 })
-
+const fmt = (v: number | null | undefined) => {
+    if (v == null) return '-';
+    const n = Number(v);
+    return Number.isInteger(n) ? n.toString() : n.toFixed(2).replace(/\.?0+$/, '');
+};
 </script>
 
 <template>
@@ -122,6 +127,8 @@ onMounted(async () => {
         <div v-if="loading" class="loading">{{ loadingMessage }}</div>
         <div class="game-info">
             <div class="date">{{ formattedDate }}</div>
+            <BetTimer v-if="interaction" :date="props.date" />
+            <div v-else></div>
             <div class="matchday-label">{{ matchdayLabel }}</div>
         </div>
 
@@ -131,9 +138,6 @@ onMounted(async () => {
                 {{ homeGoals === -1 ? '-' : homeGoals }} : {{ awayGoals === -1 ? '-' : awayGoals }}
             </div>
             <div class="away">{{ props.awayClub }}</div>
-        </div>
-
-        <div class="bet-stats">
         </div>
 
         <div v-if="interaction" class="bet-result">
@@ -153,8 +157,14 @@ onMounted(async () => {
                 <span class="subButton" @click="add('away', -1)">-</span>
             </div>
         </div>
-        <div v-if="JSON.stringify(communityBet) !== '{}'" class="bet-community">
-            <span>{{ communityBet?.homeGoals }}</span> : <span>{{ communityBet?.awayGoals }}</span> ( {{ communityBet?.numberOfVotes }} Votes )
+        <div v-if="!interaction && communityBet" class="bet-community">
+            <div class="bet-game">
+                <div class="home">Community:</div>
+                <div class="result">
+                    {{ fmt(communityBet?.homeGoals) }} : {{ fmt(communityBet?.awayGoals) }}
+                </div>
+                <div class="away"> ( {{ communityBet?.numberOfVotes }} Votes )</div>
+            </div>
         </div>
     </div>
 </template>
