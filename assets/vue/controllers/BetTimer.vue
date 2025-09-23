@@ -41,14 +41,14 @@ const seconds = computed(() => Math.floor((Math.max(0, remainingMs.value) % 6000
 const pad = (n: number) => n.toString().padStart(2, '0');
 
 const formatted = computed(() => {
-  if (remainingMs.value <= 0) return 'abgelaufen';
+  if (remainingMs.value <= 0) return 'Zeit abgelaufen';
   if (days.value > 0) return `${days.value}d ${pad(hours.value)}:${pad(minutes.value)}:${pad(seconds.value)}`;
   return `${pad(hours.value)}:${pad(minutes.value)}:${pad(seconds.value)}`;
 });
 
 const classes = computed(() => {
   const ms = remainingMs.value;
-  if (ms <= 0) return ['bet-timer', 'error'];
+  if (ms <= 0) return ['bet-timer', ''];
   if (ms <= 3600000) return ['bet-timer', 'warning'];
   return ['bet-timer', 'active'];
 });
