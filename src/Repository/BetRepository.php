@@ -23,13 +23,13 @@ class BetRepository extends ServiceEntityRepository
     /**
      * @throws \RuntimeException
      */
-    public function store(int $userId, int $gameId, int $homeGoals, int $awayGoals, string $status): bool
+    public function store(Bet $bet): bool
     {
         $em = $this->getEntityManager();
 
         try {
-            $userRef = $em->getReference(User::class, $userId);
-            $gameRef = $em->getReference(Game::class, $gameId);
+            $userRef = $bet->getUser();;
+            $gameRef = $bet->getGame();;
 
             $existingBet = $this->findOneBy([
                 'userId' => $userRef,
@@ -37,19 +37,11 @@ class BetRepository extends ServiceEntityRepository
             ]);
 
             if($existingBet instanceof Bet) {
-                $existingBet->setHomeGoals($homeGoals);
-                $existingBet->setAwayGoals($awayGoals);
+                $existingBet->setHomeGoals($bet->getHomeGoals());
+                $existingBet->setAwayGoals($bet->getAwayGoals());;
                 $em->flush();
                 return true;
             }
-
-            $bet = new Bet();
-            $bet->setUserId($userRef);
-            $bet->setGameId($gameRef);
-            $bet->setHomeGoals($homeGoals);
-            $bet->setAwayGoals($awayGoals);
-            $bet->setStatus($status);
-            $bet->setCreatedAt(new DateTimeImmutable());
 
             $em->persist($bet);
             $em->flush();

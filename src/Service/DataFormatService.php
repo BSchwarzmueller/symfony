@@ -2,8 +2,6 @@
 
 namespace App\Service;
 
-use App\Entity\Game;
-use http\Exception\InvalidArgumentException;
 
 readonly class DataFormatService
 {
@@ -11,25 +9,67 @@ readonly class DataFormatService
     {
     }
 
-    public function createMatchData(array $games): array
+    public function GamesForBetView(array $openGames, array $closedBets, array $openBets, int $userId): array
     {
-        return array_map(static function ($g) {
-            $home = $g->getHomeClub();
-            $away = $g->getAwayClub();
+        $out = [];
 
-            return [
-                'id' => $g->getId(),
-                'day' => $g->getDate()?->format('d.M'),
-                'time' => $g->getDate()?->format('H:i'),
-                'homeGoals' => $g->getHomeGoals() ?? '-',
-                'awayGoals' => $g->getAwayGoals() ?? '-',
-                'homeClub' => [
-                    'name' => $home->getName(),
-                ],
-                'awayClub' => [
-                    'name' => $away->getName(),
-                ],
+        foreach ($openGames as $game) {
+            $out[] = [
+                'type' => 'openGame',
+                'gameId' => $game['id'],
+                'userId' => $userId,
+                'homeClub' => $game['homeClub']['name'],
+                'awayClub' => $game['awayClub']['name'],
+                'homeGoals' => $game['homeGoals'],
+                'awayGoals' => $game['awayGoals'],
+                'competition' => $game['competition'],
+                'season' => $game['season'],
+                'matchday' => $game['matchday'],
+                'date' => $game['date'],
+                'betHomeGoals' => -1,
+                'betAwayGoals' => -1,
+                'betStatus' => null,
+                'betPoints' => null,
             ];
-        }, $games);
+        }
+        foreach ($closedBets as $bet) {
+            $out[] = [
+                'type' => 'closedBet',
+                'gameId' => $bet['gameId']['id'],
+                'userId' => $userId,
+                'homeClub' => $bet['gameId']['homeClub']['name'],
+                'awayClub' => $bet['gameId']['awayClub']['name'],
+                'homeGoals' => $bet['gameId']['homeGoals'],
+                'awayGoals' => $bet['gameId']['awayGoals'],
+                'competition' => $bet['gameId']['competition'],
+                'season' => $bet['gameId']['season'],
+                'matchday' => $bet['gameId']['matchday'],
+                'date' => $bet['gameId']['date'],
+                'betHomeGoals' => $bet['homeGoals'],
+                'betAwayGoals' => $bet['awayGoals'],
+                'betStatus' => $bet['status'],
+                'betPoints' => $bet['points'],
+            ];
+        }
+        foreach ($openBets as $bet) {
+            $out[] = [
+                'type' => 'openBet',
+                'gameId' => $bet['gameId']['id'],
+                'userId' => $userId,
+                'homeClub' => $bet['gameId']['homeClub']['name'],
+                'awayClub' => $bet['gameId']['awayClub']['name'],
+                'homeGoals' => $bet['gameId']['homeGoals'],
+                'awayGoals' => $bet['gameId']['awayGoals'],
+                'competition' => $bet['gameId']['competition'],
+                'season' => $bet['gameId']['season'],
+                'matchday' => $bet['gameId']['matchday'],
+                'date' => $bet['gameId']['date'],
+                'betHomeGoals' => $bet['homeGoals'],
+                'betAwayGoals' => $bet['awayGoals'],
+                'betStatus' => $bet['status'],
+                'betPoints' => $bet['points'],
+            ];
+        }
+        return $out;
     }
 }

@@ -7,7 +7,10 @@ use App\Event\BetPlacedEvent;
 use App\Repository\BetRepository;
 use App\Repository\GameRepository;
 use App\Repository\UserRepository;
+use App\Service\CachingService;
 use App\Service\ConfigService;
+use App\Service\DataFormatService;
+use App\Service\FactoryService;
 use Exception;
 use Psr\Cache\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
@@ -22,18 +25,14 @@ use Symfony\Contracts\Cache\ItemInterface;
 
 class BetController extends AbstractController
 {
-    const CACHE_TTL = 5 * 60;
-    const BETS_CACHE_KEY = 'bets';
-    const OPEN_GAMES_CACHE_KEY = 'openGames';
+
     const OPEN_BET_STATUS = 'open';
     const CLOSED_BET_STATUS = 'closed';
-    const CURRENT_MATCHDAY_CACHE_KEY = 'currentMatchday';
-    const CURRENT_MATCHDAY_CONFIG_KEY = 'currentMatchday';
 
     public function __construct(private readonly BetRepository   $betRepository,
-                                private readonly GameRepository  $gameRepository,
                                 private readonly ConfigService   $configService,
-                                private readonly CacheInterface  $cache,
+                                private readonly DataFormatService $format,
+                                private readonly CachingService  $cache,
                                 private readonly LoggerInterface $logger,
                                 private readonly EventDispatcherInterface $dispatcher
     )
@@ -47,15 +46,12 @@ class BetController extends AbstractController
     public function showBetView(User $user): Response
     {
         try {
-            $bets = $this->getBets($user->getId());
-            $closedBets = $this->getClosedBets($bets);
-            $openBets = $this->getOpenBets($bets);
-            $openGames = $this->getOpenGames($this->getCurrentMatchDay(), $openBets, $user->getId());;
-
-            $games = $this->prepareGameDataForVue($openGames, $closedBets, $openBets, $user->getId());
+            $userId = $user->getId();
+            $bets = $this->cache->getUserBets($userId);
+            $games = $this->splitGames($bets, $userId);
 
             return $this->render('bets/index.html.twig', [
-                'userId' => $user->getId(),
+                'userId' => $userId,
                 'games' => $games,
             ]);
         } catch (Exception $e) {
@@ -69,6 +65,7 @@ class BetController extends AbstractController
     final public function createBet(
         Request       $request,
         BetRepository $betRepository,
+        FactoryService $factoryService,
     ): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
@@ -80,23 +77,20 @@ class BetController extends AbstractController
                 return $this->json(['error' => $data], 400);
             }
 
-            if (!$betRepository->store(
-                (int)$data['userId'],
-                (int)$data['gameId'],
-                (int)$data['homeGoals'],
-                (int)$data['awayGoals'],
-                self::OPEN_BET_STATUS
-            )) {
+            $userId = (int)$data['userId'];
+            $gameId = (int)$data['gameId'];
+            $homeGoals = (int)$data['homeGoals'];
+            $awayGoals = (int)$data['awayGoals'];
+
+            $bet = $factoryService->createBet($userId, $gameId, $homeGoals, $awayGoals);
+
+            if (!$betRepository->store($bet)) {
                 return $this->json(['error' => 'Failed to create bet'], 500);
             }
 
-            $this->deleteCaches((int)$data['userId']);
+            $this->deleteUserCaches($userId);
 
-            $event = new BetPlacedEvent(
-                (int)$data['gameId'],
-                (int)$data['homeGoals'],
-                (int)$data['awayGoals']
-            );
+            $event = $factoryService->createBetPlacedEvent($userId, $gameId, $homeGoals, $awayGoals);
 
             $this->dispatcher->dispatch($event, BetPlacedEvent::NAME);
 
@@ -120,22 +114,10 @@ class BetController extends AbstractController
     /**
      * @throws InvalidArgumentException
      */
-    private function getBets(int $userId): array
+    private function deleteUserCaches(int $userId): void
     {
-        return $this->cache->get(self::BETS_CACHE_KEY . '.' . $userId,
-            function (ItemInterface $item) use ($userId) {
-                $item->expiresAfter(self::CACHE_TTL);
-                return $this->betRepository->getBetArrayByUser($userId);
-            });
-    }
-
-    /**
-     * @throws InvalidArgumentException
-     */
-    private function deleteCaches(int $userId): void
-    {
-        $this->cache->delete(self::OPEN_GAMES_CACHE_KEY . '.' . $userId);
-        $this->cache->delete(self::BETS_CACHE_KEY . '.' . $userId);
+        $this->cache->deleteUserCache('openGames', $userId);
+        $this->cache->deleteUserCache('bets', $userId);
     }
 
     /**
@@ -144,12 +126,7 @@ class BetController extends AbstractController
     private function getCurrentMatchDay(): array
     {
         try {
-            $currentMatchday = $this->configService->get(self::CURRENT_MATCHDAY_CONFIG_KEY);
-            return $this->cache->get(self::CURRENT_MATCHDAY_CACHE_KEY . '.' . $currentMatchday,
-                function (ItemInterface $item) use ($currentMatchday) {
-                    $item->expiresAfter(self::CACHE_TTL);
-                    return $this->gameRepository->findByMatchday($currentMatchday);
-                });
+            return $this->cache->getCurrentMatchdayGames($this->configService->get('currentMatchday'));
         } catch (Exception $e) {
             $this->logger->error('Error fetching current matchday', ['error' => $e->getMessage()]);
             throw new RuntimeException($e->getMessage(), previous: $e);
@@ -182,75 +159,18 @@ class BetController extends AbstractController
             }
         }
 
-        return $this->cache->get(self::OPEN_GAMES_CACHE_KEY . '.' . $userId,
-            function (ItemInterface $item) use ($matches, $openBetGameIds) {
-            $item->expiresAfter(self::CACHE_TTL);
-            return array_filter($matches, function ($game) use ($openBetGameIds) {
-                return !isset($openBetGameIds[$game->getId()]);
-            });
-        });
+        return $this->cache->getUserOpenGames($userId, $matches, $openBetGameIds);
     }
 
-    private function prepareGameDataForVue(array $openGames, array $closedBets, array $openBets, int $userId): array
+    /**
+     * @throws InvalidArgumentException
+     */
+    private function splitGames(array $bets, int $userId): array
     {
-        $out = [];
-        foreach ($openGames as $game) {
-            $out[] = [
-                'type' => 'openGame',
-                'gameId' => $game->getId(),
-                'userId' => $userId,
-                'homeClub' => $game->getHomeClub()->getName(),
-                'awayClub' => $game->getAwayClub()->getName(),
-                'homeGoals' => $game->getHomeGoals(),
-                'awayGoals' => $game->getAwayGoals(),
-                'competition' => $game->getCompetition(),
-                'season' => $game->getSeason(),
-                'matchday' => $game->getMatchday(),
-                'date' => $game->getDate(),
-                'betHomeGoals' => -1,
-                'betAwayGoals' => -1,
-                'betStatus' => null,
-                'betPoints' => null,
-            ];
-        }
-        foreach ($closedBets as $bet) {
-            $out[] = [
-                'type' => 'closedBet',
-                'gameId' => $bet['gameId']['id'],
-                'userId' => $userId,
-                'homeClub' => $bet['gameId']['homeClub']['name'],
-                'awayClub' => $bet['gameId']['awayClub']['name'],
-                'homeGoals' => $bet['gameId']['homeGoals'],
-                'awayGoals' => $bet['gameId']['awayGoals'],
-                'competition' => $bet['gameId']['competition'],
-                'season' => $bet['gameId']['season'],
-                'matchday' => $bet['gameId']['matchday'],
-                'date' => $bet['gameId']['date'],
-                'betHomeGoals' => $bet['homeGoals'],
-                'betAwayGoals' => $bet['awayGoals'],
-                'betStatus' => $bet['status'],
-                'betPoints' => $bet['points'],
-            ];
-        }
-        foreach ($openBets as $bet) {
-            $out[] = [
-                'type' => 'openBet',
-                'gameId' => $bet['gameId']['id'],
-                'userId' => $userId,
-                'homeClub' => $bet['gameId']['homeClub']['name'],
-                'awayClub' => $bet['gameId']['awayClub']['name'],
-                'homeGoals' => $bet['gameId']['homeGoals'],
-                'awayGoals' => $bet['gameId']['awayGoals'],
-                'competition' => $bet['gameId']['competition'],
-                'season' => $bet['gameId']['season'],
-                'matchday' => $bet['gameId']['matchday'],
-                'date' => $bet['gameId']['date'],
-                'betHomeGoals' => $bet['homeGoals'],
-                'betAwayGoals' => $bet['awayGoals'],
-                'betStatus' => $bet['status'],
-                'betPoints' => $bet['points'],
-            ];
-        }
-        return $out;
+        $closedBets = $this->getClosedBets($bets);
+        $openBets = $this->getOpenBets($bets);
+        $openGames = $this->getOpenGames($this->getCurrentMatchDay(), $openBets, $userId);;
+
+        return $this->format->GamesForBetView($openGames, $closedBets, $openBets, $userId);
     }
 }

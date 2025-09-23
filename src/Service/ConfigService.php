@@ -8,17 +8,16 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 readonly class ConfigService
 {
-    public function __construct(private SystemConfigRepository $repo, private CacheInterface $cache) {}
+    public function __construct(private SystemConfigRepository $repo,
+                                private CachingService $cache
+    ) {}
 
     /**
      * @throws InvalidArgumentException
      */
-    public function get(string $key, ?string $default = null): ?string
+    public function get(string $key): ?string
     {
-        return $this->cache->get('config_'.$key, function () use ($key, $default) {
-            $config = $this->repo->get($key);
-            return $config?->getConfigValue() ?? $default;
-        });
+        return $this->cache->getConfig($key);
     }
 
     /**
@@ -27,6 +26,6 @@ readonly class ConfigService
     public function set(string $key, ?string $value): void
     {
         $this->repo->set($key, $value);
-        $this->cache->delete('config_'.$key);
+        $this->cache->deleteConfig($key);
     }
 }

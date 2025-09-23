@@ -43,23 +43,23 @@ class Bet
         return $this->id;
     }
 
-    public function getGameId(): ?Game
+    public function getGame(): ?Game
     {
         return $this->gameId;
     }
 
-    public function setGameId(?Game $gameId): static
+    public function setGame(?Game $gameId): static
     {
         $this->gameId = $gameId;
         return $this;
     }
 
-    public function getUserId(): ?User
+    public function getUser(): ?User
     {
         return $this->userId;
     }
 
-    public function setUserId(?User $userId): static
+    public function setUser(?User $userId): static
     {
         $this->userId = $userId;
         return $this;

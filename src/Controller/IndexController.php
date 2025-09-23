@@ -94,7 +94,7 @@ final class IndexController extends AbstractController
     {
         $out = [];
         foreach ($bets as $b) {
-            $game = $b->getGameId();
+            $game = $b->getGame();
             $out[] = [
                 'gameId' => $game?->getId(),
                 'homeGoals' => $b->getHomeGoals(),
