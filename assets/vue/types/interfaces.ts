@@ -14,4 +14,5 @@ export interface GameInterface {
     betAwayGoals: number;
     betStatus: string | null;
     betPoints: number | null;
+    betId: number | null;
 }

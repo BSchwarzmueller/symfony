@@ -22,7 +22,6 @@ function moveToOpenBets(gameId: number, homeGoals: number, awayGoals: number) {
         openBets.value.unshift(game)
     }
 }
-
 </script>
 
 <template>
@@ -69,13 +68,14 @@ function moveToOpenBets(gameId: number, homeGoals: number, awayGoals: number) {
                 :bet-away-goals="game.betAwayGoals"
                 :bet-status="game.betStatus"
                 :bet-points="game.betPoints"
+                :bet-id="game.betId"
             />
         </div>
         <h2 v-if="closedBets.length > 0" class="bet-header">Vergangene Wetten <span>({{closedBets.length }})</span></h2>
         <div v-for="game in closedBets" :key="game.gameId">
             <Bet
                 :pop-bet="moveToOpenBets"
-                :interaction="props.interaction"
+                :interaction="false"
                 :type="game.type"
                 :game-id="game.gameId"
                 :user-id="game.userId"
@@ -91,6 +91,7 @@ function moveToOpenBets(gameId: number, homeGoals: number, awayGoals: number) {
                 :bet-away-goals="game.betAwayGoals"
                 :bet-status="game.betStatus"
                 :bet-points="game.betPoints"
+                :bet-id="game.betId"
             />
         </div>
     </div>

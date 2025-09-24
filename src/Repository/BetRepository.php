@@ -39,6 +39,8 @@ class BetRepository extends ServiceEntityRepository
             if($existingBet instanceof Bet) {
                 $existingBet->setHomeGoals($bet->getHomeGoals());
                 $existingBet->setAwayGoals($bet->getAwayGoals());;
+                $existingBet->setPoints($bet->getPoints());
+
                 $em->flush();
                 return true;
             }

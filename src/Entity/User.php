@@ -39,6 +39,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
     private ?UserProfile $userProfile = null;
 
+    #[ORM\OneToOne(mappedBy: 'User', cascade: ['persist', 'remove'])]
+    private ?UserStats $userStats = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -145,6 +148,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         $this->userProfile = $userProfile;
+
+        return $this;
+    }
+
+    public function getUserStats(): ?UserStats
+    {
+        return $this->userStats;
+    }
+
+    public function setUserStats(UserStats $userStats): static
+    {
+        // set the owning side of the relation if necessary
+        if ($userStats->getUser() !== $this) {
+            $userStats->setUser($this);
+        }
+
+        $this->userStats = $userStats;
 
         return $this;
     }

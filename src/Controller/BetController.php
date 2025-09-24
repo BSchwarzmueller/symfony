@@ -2,11 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\Bet;
 use App\Entity\User;
 use App\Event\BetPlacedEvent;
 use App\Repository\BetRepository;
 use App\Repository\GameRepository;
 use App\Repository\UserRepository;
+use App\Service\BetProcessingService;
 use App\Service\CachingService;
 use App\Service\ConfigService;
 use App\Service\DataFormatService;
@@ -105,15 +107,41 @@ class BetController extends AbstractController
     }
 
 
-    #[Route(path: 'bets/process', name: 'app.bets.process')]
-    public function processBets()
+    #[Route(path: 'bet/process/{id}', name: 'app.bets.process', methods: ['GET'])]
+    public function processBet(Bet $bet, Request $request, BetProcessingService $betProcessingService)
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        $openBets        = $this->betRepository->getAllOpenBets();
-        $currentMatchday = $this->configService->get('currentMatchday');
+        if($bet->getStatus() === self::CLOSED_BET_STATUS) {
+            return $this->json(['error' => 'Bet is already processed'], 400);
+        }
 
-        // itteration über bets, wenn matchday passt dann ergebnis checken und spieler gutschreiben
+        try {
+            $user = $this->getUser();
+
+            if(!$user && $user->getId() !== $bet->getUser()->getId()) {
+                return $this->json(['error' => 'You are not allowed to process this bet'], 403);
+            }
+
+            $points = $betProcessingService->processBet($bet);
+
+            if($points < 0) {
+                return $this->json(['error' => 'Failed to process bet'], 500);
+            }
+
+            $bet->setPoints($points);
+            $bet->setStatus(self::CLOSED_BET_STATUS);
+            $this->betRepository->store($bet);
+
+            $this->deleteUserCaches($bet->getUser()->getId());
+
+            return $this->json([
+                'message' => 'Bet processed successfully',
+                'points' => $points,
+            ], 200);
+        } catch (Exception $e) {
+            $this->logger->error('Error processing bets', ['error' => $e->getMessage()]);
+        }
     }
 
     /**

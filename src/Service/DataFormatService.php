@@ -49,6 +49,7 @@ readonly class DataFormatService
                 'betAwayGoals' => $bet['awayGoals'],
                 'betStatus' => $bet['status'],
                 'betPoints' => $bet['points'],
+                'betId' => $bet['id'],
             ];
         }
         foreach ($openBets as $bet) {
@@ -68,6 +69,7 @@ readonly class DataFormatService
                 'betAwayGoals' => $bet['awayGoals'],
                 'betStatus' => $bet['status'],
                 'betPoints' => $bet['points'],
+                'betId' => $bet['id'],
             ];
         }
         return $out;
