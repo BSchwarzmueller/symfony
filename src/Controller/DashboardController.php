@@ -15,6 +15,7 @@ use Psr\Cache\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -76,11 +77,11 @@ class DashboardController extends AbstractController
      * @throws TransportExceptionInterface
      */
     #[Route(path: '/admin/clubs/update', name: 'admin.clubs.update')]
-    public function getClubsFromApi(ClubRepository $clubRepository, EntityManagerInterface $entityManager)
+    public function getClubsFromApi(ClubRepository $clubRepository, EntityManagerInterface $entityManager): RedirectResponse
     {
         try {
             $response = $this->httpClient->request('GET', self::GET_CLUBS_API_URL);
-            $clubs = $response->toArray();
+            $clubs    = $response->toArray();
         } catch (\Exception $e) {
             $this->addFlash('error', 'Error while fetching clubs from API: . ' . $e->getMessage());
         }
@@ -128,11 +129,10 @@ class DashboardController extends AbstractController
         Request        $request,
         GameRepository $gameRepository,
         ConfigService  $config
-    ): Response
-    {
+    ): Response {
         $form = $this->createFormBuilder()
             ->add('matchday', NumberType::class, [
-                'label' => 'Matchday',
+                'label'    => 'Matchday',
                 'required' => true,
             ])->getForm();
 
@@ -163,11 +163,10 @@ class DashboardController extends AbstractController
         int            $matchday,
         int            $currentMatchday,
         GameRepository $gameRepository
-    ): void
-    {
+    ): void {
         try {
             $response = $this->httpClient->request('GET', self::GET_GAMES_API_URL . $matchday);
-            $games = $response->toArray();
+            $games    = $response->toArray();
         } catch (\Exception $e) {
             $this->addFlash('error', 'Error while fetching games from API: . ' . $e->getMessage());
         }

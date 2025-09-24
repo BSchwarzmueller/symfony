@@ -20,6 +20,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
@@ -29,30 +30,31 @@ class BetController extends AbstractController
     const OPEN_BET_STATUS = 'open';
     const CLOSED_BET_STATUS = 'closed';
 
-    public function __construct(private readonly BetRepository   $betRepository,
-                                private readonly ConfigService   $configService,
-                                private readonly DataFormatService $format,
-                                private readonly CachingService  $cache,
-                                private readonly LoggerInterface $logger,
-                                private readonly EventDispatcherInterface $dispatcher
-    )
-    {
+    public function __construct(private readonly BetRepository            $betRepository,
+                                private readonly ConfigService            $configService,
+                                private readonly DataFormatService        $format,
+                                private readonly CachingService           $cache,
+                                private readonly LoggerInterface          $logger,
+                                private readonly EventDispatcherInterface $dispatcher,
+                                private readonly ValidatorInterface       $validator,
+    ) {
     }
 
     /**
      * @throws InvalidArgumentException
      */
-    #[Route(path: 'bets/{id}', name: 'app.bets.show')]
+    #[
+        Route(path: 'bets/{id}', name: 'app.bets.show')]
     public function showBetView(User $user): Response
     {
         try {
             $userId = $user->getId();
-            $bets = $this->cache->getUserBets($userId);
-            $games = $this->splitGames($bets, $userId);
+            $bets   = $this->cache->getUserBets($userId);
+            $games  = $this->splitGames($bets, $userId);
 
             return $this->render('bets/index.html.twig', [
                 'userId' => $userId,
-                'games' => $games,
+                'games'  => $games,
             ]);
         } catch (Exception $e) {
             $this->logger->error('Error fetching bets', ['error' => $e->getMessage()]);
@@ -63,49 +65,52 @@ class BetController extends AbstractController
 
     #[Route(path: '/bet/create', name: 'app.bet.create', methods: ['POST'])]
     final public function createBet(
-        Request       $request,
-        BetRepository $betRepository,
+        Request        $request,
+        BetRepository  $betRepository,
         FactoryService $factoryService,
-    ): Response
-    {
+    ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
         try {
             $data = json_decode($request->getContent(), true);
 
-            if (!isset($data['userId'], $data['gameId'], $data['homeGoals'], $data['awayGoals'])) {
-                return $this->json(['error' => $data], 400);
+            $createBetDto = $factoryService->createBetDtoFromRequestData($data);
+
+            if (!$createBetDto) {
+                return $this->json(['error' => 'Missing request data'], 400);
             }
 
-            $userId = (int)$data['userId'];
-            $gameId = (int)$data['gameId'];
-            $homeGoals = (int)$data['homeGoals'];
-            $awayGoals = (int)$data['awayGoals'];
+            $errors = $this->validator->validate($createBetDto);
 
-            $bet = $factoryService->createBet($userId, $gameId, $homeGoals, $awayGoals);
+            if (count($errors) > 0) {
+                return $this->json(['error' => 'Invalid request data' . $errors], 400);
+            }
+
+            $bet = $factoryService->createBet($createBetDto);
 
             if (!$betRepository->store($bet)) {
                 return $this->json(['error' => 'Failed to create bet'], 500);
             }
 
-            $this->deleteUserCaches($userId);
+            $this->deleteUserCaches($createBetDto->getUserId());
 
-            $event = $factoryService->createBetPlacedEvent($userId, $gameId, $homeGoals, $awayGoals);
-
+            $event = $factoryService->createBetPlacedEvent($createBetDto);
             $this->dispatcher->dispatch($event, BetPlacedEvent::NAME);
 
             return $this->json(['message' => 'Bet created successfully'], 201);
         } catch (Exception|InvalidArgumentException $e) {
+            $this->logger->error('Error creating bet', ['error' => $e->getMessage()]);
             return $this->json(['error' => $e->getMessage()], 400);
         }
     }
 
 
-    #[Route(path: 'bets/process', name:'app.bets.process')]
-    public function processBets() {
+    #[Route(path: 'bets/process', name: 'app.bets.process')]
+    public function processBets()
+    {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
-        $openBets = $this->betRepository->getAllOpenBets();
+        $openBets        = $this->betRepository->getAllOpenBets();
         $currentMatchday = $this->configService->get('currentMatchday');
 
         // itteration über bets, wenn matchday passt dann ergebnis checken und spieler gutschreiben
@@ -155,7 +160,7 @@ class BetController extends AbstractController
         $openBetGameIds = [];
         foreach ($openBets as $bet) {
             if (isset($bet['gameId']['id'])) {
-                $openBetGameIds[(int) $bet['gameId']['id']] = true;
+                $openBetGameIds[(int)$bet['gameId']['id']] = true;
             }
         }
 
@@ -168,8 +173,8 @@ class BetController extends AbstractController
     private function splitGames(array $bets, int $userId): array
     {
         $closedBets = $this->getClosedBets($bets);
-        $openBets = $this->getOpenBets($bets);
-        $openGames = $this->getOpenGames($this->getCurrentMatchDay(), $openBets, $userId);;
+        $openBets   = $this->getOpenBets($bets);
+        $openGames  = $this->getOpenGames($this->getCurrentMatchDay(), $openBets, $userId);;
 
         return $this->format->GamesForBetView($openGames, $closedBets, $openBets, $userId);
     }

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Game;
+use App\Repository\GameRepository;
 use App\Repository\GameStatsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -12,8 +13,8 @@ use Symfony\Component\Routing\Attribute\Route;
 class GameStatsController extends AbstractController
 {
     public function __construct(
-        private readonly GameStatsRepository    $gameStatsRepository,
-        private readonly EntityManagerInterface $entityManager
+        private readonly GameRepository         $gameRepository,
+        private readonly GameStatsRepository    $gameStatsRepository
     )
     {
     }
@@ -21,7 +22,7 @@ class GameStatsController extends AbstractController
     #[Route(path: 'game/stats/{gameId}', name: 'app.game.stats', methods: ['GET'])]
     public function getGameStats(int $gameId): Response
     {
-        $game = $this->entityManager->getRepository(Game::class)->find($gameId);
+        $game = $this->gameRepository->find($gameId);
 
         if (!$game) {
             return $this->json(null);

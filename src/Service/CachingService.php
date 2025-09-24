@@ -11,21 +11,20 @@ use Symfony\Contracts\Cache\ItemInterface;
 
 class CachingService
 {
-    const CACHE_TTL = 5 * 60;
+    const THIRTY_MINUTES = 30 * 60;
+    const A_DAY = 24 * 60 * 60;
     const BETS_CACHE = 'bets';
     const OPEN_GAMES_CACHE = 'openGames';
     const CURRENT_MATCHDAY_CACHE = 'currentMatchday';
     const CACHE_SEPARATOR = '.';
     const CONFIG_CACHE = 'config';
-    const CURRENT_MATCHDAY_CONFIG_KEY = 'currentMatchday';
 
     public function __construct(
         private readonly CacheInterface         $cache,
         private readonly BetRepository          $betRepository,
         private readonly GameRepository         $gameRepository,
         private readonly SystemConfigRepository $systemConfigRepository,
-    )
-    {
+    ) {
     }
 
     /**
@@ -44,12 +43,11 @@ class CachingService
     /**
      * @throws InvalidArgumentException
      */
-    public function getCurrentMatchdayGames(int $currentMatchday):array
+    public function getCurrentMatchdayGames(int $currentMatchday): array
     {
         return $this->cache->get(self::CURRENT_MATCHDAY_CACHE,
-            function (ItemInterface $item) use ($currentMatchday){
-                $item->expiresAfter(60*60*24);
-
+            function (ItemInterface $item) use ($currentMatchday) {
+                $item->expiresAfter(self::A_DAY);
                 return $this->gameRepository->findArrayByMatchday($currentMatchday);
             });
     }
@@ -61,9 +59,9 @@ class CachingService
     {
         return $this->cache->get(self::OPEN_GAMES_CACHE . self::CACHE_SEPARATOR . $userId,
             function (ItemInterface $item) use ($matches, $openBetGameIds) {
-                $item->expiresAfter(self::CACHE_TTL);
+                $item->expiresAfter(self::THIRTY_MINUTES);
                 return array_filter($matches, function ($game) use ($openBetGameIds) {
-                    return !isset($openBetGameIds[$game->getId()]);
+                    return !isset($openBetGameIds[$game['id']]);
                 });
             });
     }
@@ -75,7 +73,7 @@ class CachingService
     {
         return $this->cache->get(self::BETS_CACHE . self::CACHE_SEPARATOR . $userId,
             function (ItemInterface $item) use ($userId) {
-                $item->expiresAfter(self::CACHE_TTL);
+                $item->expiresAfter(self::THIRTY_MINUTES);
                 return $this->betRepository->getBetArrayByUser($userId);
             });
     }
