@@ -88,10 +88,9 @@ const formattedDate = computed(() => {
   const date = new Date(props.date);
 
   return date.toLocaleDateString('de-DE', {
-    weekday: 'short',
     day: '2-digit',
     month: '2-digit',
-    year: 'numeric',
+    year: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
@@ -101,10 +100,10 @@ const formattedDate = computed(() => {
 const matchdayLabel = computed(() => {
   let label = ''
   if (props.competition === 'bl1') {
-    label = '1. Bundesliga - ' + props.matchday + '. Spieltag'
+    label = '<span>1. Bundesliga</span><span>' + props.matchday + '. Spieltag</span>'
   }
   if (props.competition === 'dfb') {
-    label = 'DFB-Pokal - ' + props.matchday + '. Runde'
+    label = '<span>DFB-Pokal</span><span>' + props.matchday + '. Runde</span>'
   }
   return label
 });

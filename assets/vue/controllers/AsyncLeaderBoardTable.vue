@@ -38,7 +38,7 @@ onMounted(async () => {
 
 <template>
   <section class="content leaderboard">
-    <h2>Leaderboard</h2>
+    <h2>Leaderboard (Top 20)</h2>
     <table class="bl-table" v-if="!loading">
       <thead>
       <tr>
@@ -55,8 +55,8 @@ onMounted(async () => {
     </table>
     <div v-else>
       <h3>{ displayMessage }}</h3>
-    </div><small>
-    <a href="">Alle anzeigen</a></small>
+    </div><br>
+    <small>    <a href="">Alle anzeigen</a></small>
   </section>
 </template>
 

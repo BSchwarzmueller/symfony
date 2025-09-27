@@ -82,9 +82,8 @@ body {
 
   .content {
     &.leaderboard {
-      height: 240px;
       .bl-table {
-        thead {
+        tr:nth-child(0) {
           font-weight: 800;
           border-bottom: 1px solid $light-gray-border;
         }
