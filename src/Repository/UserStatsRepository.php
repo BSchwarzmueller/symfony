@@ -27,7 +27,7 @@ class UserStatsRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('us')
             ->join('us.User', 'u')
             ->leftJoin('u.userProfile', 'up')
-            ->select('COALESCE(up.name, u.name) AS name, us.points')
+            ->select('COALESCE(up.userId, u.id) AS name, us.points')
             ->orderBy('us.points', 'DESC')
             ->setMaxResults(20)
             ->getQuery()
