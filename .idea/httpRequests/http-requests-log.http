@@ -1,0 +1,11 @@
+POST http://localhost:8000/api/v1/bet/create
+Accept: application/json
+User-Agent: IntelliJ HTTP Client/PhpStorm 2025.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+cookie: main_deauth_profile_token=480793; sf_redirect=%7B%22token%22%3A%22480793%22%2C%22route%22%3A%22api.bet.create%22%2C%22method%22%3A%22POST%22%2C%22controller%22%3A%7B%22class%22%3A%22App%5C%5CController%5C%5Capi%5C%5CBetController%22%2C%22method%22%3A%22createBet%22%2C%22file%22%3A%22%5C%2Fhome%5C%2Fdevdonkey%5C%2FDEV%5C%2Ffussball%5C%2Fsrc%5C%2FController%5C%2Fapi%5C%2FBetController.php%22%2C%22line%22%3A14%7D%2C%22status_code%22%3A302%2C%22status_text%22%3A%22Found%22%7D
+content-length: 0
+
+<> 2025-09-12T072126.200.html
+
+###
+
