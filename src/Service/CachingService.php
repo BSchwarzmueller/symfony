@@ -97,4 +97,12 @@ class CachingService
     {
         $this->cache->delete(self::CONFIG_CACHE . self::CACHE_SEPARATOR . $key);
     }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function deleteCurrentMatchdayCache():void
+    {
+        $this->cache->delete(self::CURRENT_MATCHDAY_CACHE);
+    }
 }

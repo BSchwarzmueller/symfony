@@ -45,8 +45,7 @@ class BetController extends AbstractController
     /**
      * @throws InvalidArgumentException
      */
-    #[
-        Route(path: 'bets/{id}', name: 'app.bets.show')]
+    #[Route(path: 'bets/{id}', name: 'app.bets.show')]
     public function showBetView(User $user): Response
     {
         try {
@@ -112,20 +111,20 @@ class BetController extends AbstractController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        if($bet->getStatus() === self::CLOSED_BET_STATUS) {
+        if ($bet->getStatus() === self::CLOSED_BET_STATUS) {
             return $this->json(['error' => 'Bet is already processed'], 400);
         }
 
         try {
             $user = $this->getUser();
 
-            if(!$user && $user->getId() !== $bet->getUser()->getId()) {
+            if (!$user && $user->getId() !== $bet->getUser()->getId()) {
                 return $this->json(['error' => 'You are not allowed to process this bet'], 403);
             }
 
             $points = $betProcessingService->processBet($bet);
 
-            if($points < 0) {
+            if ($points < 0) {
                 return $this->json(['error' => 'Failed to process bet'], 500);
             }
 
@@ -137,7 +136,7 @@ class BetController extends AbstractController
 
             return $this->json([
                 'message' => 'Bet processed successfully',
-                'points' => $points,
+                'points'  => $points,
             ], 200);
         } catch (Exception $e) {
             $this->logger->error('Error processing bets', ['error' => $e->getMessage()]);

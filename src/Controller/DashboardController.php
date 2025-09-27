@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Repository\ClubRepository;
 use App\Repository\GameRepository;
 use App\Repository\UserRepository;
+use App\Service\CachingService;
 use App\Service\ConfigService;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
@@ -123,12 +124,14 @@ class DashboardController extends AbstractController
      * @throws RedirectionExceptionInterface
      * @throws DecodingExceptionInterface
      * @throws ClientExceptionInterface
+     * @throws InvalidArgumentException
      */
     #[Route(path: 'admin/games/update', name: 'admin.games.update')]
     public function updateGamesByMatchday(
         Request        $request,
         GameRepository $gameRepository,
-        ConfigService  $config
+        ConfigService  $config,
+        CachingService $cache
     ): Response {
         $form = $this->createFormBuilder()
             ->add('matchday', NumberType::class, [
@@ -140,8 +143,7 @@ class DashboardController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $matchday = (int)$form->get('matchday')->getData();
-            $this->callApi($matchday, (int)$config->get('currentMatchday'), $gameRepository);
-
+            $this->callApi($matchday, (int)$config->get('currentMatchday'), $gameRepository, $cache);
             return $this->redirectToRoute('admin.games.index');
         }
 
@@ -162,7 +164,8 @@ class DashboardController extends AbstractController
     private function callApi(
         int            $matchday,
         int            $currentMatchday,
-        GameRepository $gameRepository
+        GameRepository $gameRepository,
+        CachingService $cache
     ): void {
         try {
             $response = $this->httpClient->request('GET', self::GET_GAMES_API_URL . $matchday);
@@ -175,12 +178,13 @@ class DashboardController extends AbstractController
             $this->addFlash('error', 'No games found.');
         }
 
-        // liegt das spiel bereits in der Datenbank vor?
         if ($currentMatchday >= $matchday) {
             $gameRepository->updateGames($games);
         } else {
             $gameRepository->createGames($games, $matchday);
         }
+
+        $cache->deleteCurrentMatchdayCache();
 
         $this->addFlash('success', 'Games updated successfully.');
     }

@@ -39,6 +39,7 @@ onMounted(async () => {
 </script>
 
 <template>
+  <h2>Tabelle</h2>
     <div v-if="loading">Loading...</div>
     <div v-else>
         {{ msg }}
@@ -47,17 +48,17 @@ onMounted(async () => {
                 <thead>
                 <tr>
                     <th></th>
-                    <th>S</th>
-                    <th>U</th>
-                    <th>N</th>
+                    <th class="td-number">S</th>
+                    <th class="td-number">U</th>
+                    <th class="td-number">N</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr v-for="item in items" :key="item.id">
                     <td>{{ item.teamName }}</td>
-                    <td>{{ item.won }}</td>
-                    <td>{{ item.draw }}</td>
-                    <td>{{ item.lost }}</td>
+                    <td class="td-number">{{ item.won }}</td>
+                    <td class="td-number">{{ item.draw }}</td>
+                    <td class="td-number">{{ item.lost }}</td>
                 </tr>
                 </tbody>
             </table>

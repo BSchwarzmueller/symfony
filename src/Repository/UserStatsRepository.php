@@ -21,4 +21,16 @@ class UserStatsRepository extends ServiceEntityRepository
         $this->getEntityManager()->persist($userStats);
         $this->getEntityManager()->flush();
     }
+
+    public function getLeaders(): mixed
+    {
+        return $this->createQueryBuilder('us')
+            ->join('us.User', 'u')
+            ->leftJoin('u.userProfile', 'up')
+            ->select('COALESCE(up.name, u.name) AS name, us.points')
+            ->orderBy('us.points', 'DESC')
+            ->setMaxResults(20)
+            ->getQuery()
+            ->getArrayResult();
+    }
 }

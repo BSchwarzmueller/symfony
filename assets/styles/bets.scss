@@ -118,11 +118,15 @@
     .result {
       font-size: clamp(1.5rem, 3vw, 1.75rem);
       font-weight: 800;
-
+      display: flex;
+      justify-content: center;
+      align-items: center;
       .number {
         border: 1px solid $light-gray-border;
         padding: 0 $tn;
         margin: $tn;
+        min-width: 18px;
+        text-align: center;
         &.hit {
           color: #fff;
           background-color: $primary-green;

@@ -5,166 +5,201 @@
 @import './admin.scss';
 
 body {
-    font-family: 'Nunito', sans-serif;
-    padding: 0;
-    margin: 0;
-    background: linear-gradient(90deg, $background-color-darkest 0%, $background-color-dark 50%, $background-color-darkest 100%);
-    color: white;
+  font-family: 'Nunito', sans-serif;
+  padding: 0;
+  margin: 0;
+  background: linear-gradient(90deg, $background-color-darkest 0%, $background-color-dark 50%, $background-color-darkest 100%);
+  color: white;
 
-    a,
-    a:visited {
-        color: white;
-    }
+  a,
+  a:visited {
+    color: white;
+  }
 }
 
 .content-wrapper {
-    margin: 0 auto;
-    max-width: 1280px;
+  margin: 0 auto;
+  max-width: 1280px;
 }
 
 .button {
-    padding: $tn $sm;
-    background-color: $button-neutral-color;
-    text-decoration: none;
-    color: white;
-    text-transform: uppercase;
-    font-weight: bold;
-    border: 1px solid $button-neutral-color;
-    border-radius: $tn;
-    cursor: pointer;
+  padding: $tn $sm;
+  background-color: $button-neutral-color;
+  text-decoration: none;
+  color: white;
+  text-transform: uppercase;
+  font-weight: bold;
+  border: 1px solid $button-neutral-color;
+  border-radius: 0;
+  cursor: pointer;
 }
 
 .flash-container {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    max-width: 300px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  max-width: 300px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .flash {
-    top: $sm;
-    right: 0;
-    left: 0;
-    padding: $sm;
-    max-width: 300px;
-    margin: $sm auto;
-    border: 1px solid black;
+  top: $sm;
+  right: 0;
+  left: 0;
+  padding: $sm;
+  max-width: 300px;
+  margin: $sm auto;
+  border: 1px solid black;
 }
 
 .flash-success {
-    background-color: $success;
+  background-color: $success;
 }
 
 .flash-error {
-    background-color: $error;
+  background-color: $error;
 }
 
 .content-grid {
-    padding: $md 0;
-    display: grid;
+  padding: $md 0;
+  display: grid;
+  gap: $md;
+  &.one-three {
     grid-template-columns: 1fr 3fr;
-    gap: $sm;
+  }
+  &.two-two {
+    grid-template-columns: 2fr 2fr;
+  }
+
+  @media screen and (max-width: 768px) {
+    display: flex;
+    flex-direction: column;
+    padding: $sm;
+  }
+
+  .content {
+    &.leaderboard {
+      height: 240px;
+      .bl-table {
+        thead {
+          font-weight: 800;
+          border-bottom: 1px solid $light-gray-border;
+        }
+        overflow: scroll;
+        height: 100%;
+        margin-bottom: $tn;
+        background-color: $background-color-darkest;
+      }
+    }
+  }
 }
 
 .bl-table {
-    width: 100%;
-    font-size: 1rem;
-    background-color: $background-color-dark;
-    padding: $tn $sm;
-    border: 1px solid $light-gray-border;
-    border-radius: $tn;
+  width: 100%;
+  font-size: 1rem;
+  background-color: $background-color-dark;
+  padding: $tn $sm;
+  border: 1px solid $light-gray-border;
+  border-radius: $tn;
+
+  tr:nth-child(even) {
+    background-color: $light-gray-border;
+  }
+
+  .td-number {
+    text-align: center;
+  }
 }
 
 .matchday-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: $sm;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: $sm;
 
-    .matchday {
-        width: 100%;
-    }
+  .matchday {
+    width: 100%;
+  }
 }
 
 .matchday-table {
-    background-color: $background-color-dark;
-    width: 100%;
-    padding: 0 0 $sm 0;
-    margin: $sm auto;
+  background-color: $background-color-dark;
+  width: 100%;
+  padding: 0 0 $sm 0;
+  margin: $sm auto;
+  border: 1px solid $light-gray-border;
+  border-radius: $tn;
+
+  .label {
+    text-align: center;
+    font-size: 2rem;
+    margin: 0 0 $sm 0;
+    background-color: $primary-red;
+    padding: $tn $sm;
     border: 1px solid $light-gray-border;
-    border-radius: $tn;
+    border-radius: $tn $tn 0 0;
+  }
 
-    .label {
-        text-align: center;
-        font-size: 2rem;
-        margin: 0 0 $sm 0;
-        background-color: $primary-red;
+  .date {
+    margin: $sm $tn;
+  }
+
+  .game {
+    margin: $sm 0;
+    border-bottom: 1px solid $light-gray-border;
+
+    .wrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .home, .away {
+        width: 49%;
+        font-size: 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         padding: $tn $sm;
-        border: 1px solid $light-gray-border;
-        border-radius: $tn $tn 0 0;
-    }
+        position: relative;
+      }
 
-    .date {
-        margin: $sm $tn;
-    }
+      .home-goals, .away-goals {
+        font-size: 2rem;
+        font-weight: bold;
+      }
 
-    .game {
-        margin: $sm 0;
-        border-bottom: 1px solid $light-gray-border;
+      .bet-home, .bet-away {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: $sm;
+        position: relative;
 
-        .wrapper {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        span {
+          padding: $tn $sm;
+          border: 1px solid $light-gray-border;
+          font-weight: bold;
+          font-size: 1.5rem;
+          user-select: none;
 
-            .home, .away {
-                width: 49%;
-                font-size: 1.25rem;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: $tn $sm;
-                position: relative;
-            }
+          &:last-child {
+            border-left: none;
+          }
 
-            .home-goals, .away-goals {
-                font-size: 2rem;
-                font-weight: bold;
-            }
-
-            .bet-home, .bet-away {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                padding: $sm;
-                position: relative;
-
-                span {
-                    padding: $tn $sm;
-                    border: 1px solid $light-gray-border;
-                    font-weight: bold;
-                    font-size: 1.5rem;
-                    user-select: none;
-
-                    &:last-child {
-                        border-left: none;
-                    }
-
-                    &:hover {
-                        cursor: pointer;
-                    }
-                }
-            }
-
-            .bet-home {
-                left: 0;
-            }
+          &:hover {
+            cursor: pointer;
+          }
         }
+      }
 
+      .bet-home {
+        left: 0;
+      }
     }
+
+  }
 }

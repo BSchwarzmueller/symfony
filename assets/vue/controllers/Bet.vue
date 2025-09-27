@@ -160,9 +160,9 @@ const fmt = (v: number | null | undefined) => {
     <div class="bet-game">
       <div class="home">{{ props.homeClub }}</div>
       <div class="result">
-        <span class="number">{{ homeGoals === -1 ? '-' : homeGoals }}</span>
-        <span class="separator">:</span>
-        <span class="number">{{ awayGoals === -1 ? '-' : awayGoals }}</span>
+        <div class="number">{{ homeGoals === -1 ? '-' : homeGoals }}</div>
+        <div class="separator">:</div>
+        <div class="number">{{ awayGoals === -1 ? '-' : awayGoals }}</div>
       </div>
       <div class="away">{{ props.awayClub }}</div>
     </div>

@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Bet;
 use App\Repository\BetRepository;
 use App\Repository\GameRepository;
+use App\Repository\UserStatsRepository;
 use App\Service\ConfigService;
 use App\Service\DataFormatService;
 use Doctrine\Common\Collections\Collection;
@@ -20,97 +21,29 @@ final class IndexController extends AbstractController
 {
     private const CACHE_TTL = 3600;
 
+    public function __construct(
+        private readonly ConfigService       $configService,
+        private readonly UserStatsRepository $userStatsRepository
+    ) {
+    }
+
     /**
      * @throws InvalidArgumentException
      */
     #[Route('/', name: 'app.index')]
-    public function index(
-        Request $request,
-        GameRepository $gameRepository,
-        BetRepository $betRepository,
-        ConfigService $configService,
-        CacheInterface $cache,
-        DataFormatService $dataFormatService
-    ): Response {
-        $currentMatchday = (int) $configService->get('currentMatchday');
-        $lastMatchday = $currentMatchday - 1;
-
-        $currentMatchdayGames = $this->getGamesForMatchdayCached($cache, $gameRepository, $currentMatchday);
-
-        $currentPlayerBet = [];
-        $user = $this->getUser();
-
-        if ($user !== null) {
-            $userId = (int) $user->getId();
-            $currentPlayerBet = $this->getCurrentPlayerBetCached($cache, $betRepository, $userId, $currentMatchday);
-            $currentPlayerBet = $this->mapBets($currentPlayerBet);
-        }
-
-        $lastMatchdayGames = [];
-        if ($lastMatchday > 0) {
-            $lastMatchdayGames = $this->getGamesForMatchdayCached($cache, $gameRepository, $lastMatchday);
-        }
+    public function index(): Response
+    {
+        $currentMatchday = (int)$this->configService->get('currentMatchday');
+        $leaderBoardData = $this->getLeaderBoardData();
 
         return $this->render('index/index.html.twig', [
             'currentMatchday' => $currentMatchday,
-            'lastMatchday' => $lastMatchday,
-            'currentMatchdayGames' => $currentMatchdayGames,
-            'currentPlayerBet' => $currentPlayerBet,
-            'lastMatchdayGames' => $lastMatchday > 0 ? $lastMatchdayGames : [],
+            'leaderBoardData' => $leaderBoardData,
         ]);
     }
 
-    /**
-     * @throws InvalidArgumentException
-     */
-    private function getGamesForMatchdayCached(
-        CacheInterface $cache,
-        GameRepository $gameRepository,
-        int $matchday
-    ): array {
-        $cacheKey = $this->cacheKeyGames($matchday);
-
-        return $cache->get($cacheKey, function (ItemInterface $item) use ($gameRepository, $matchday) {
-            $item->expiresAfter(self::CACHE_TTL);
-            return $gameRepository->findArrayByMatchday($matchday);
-        });
-    }
-
-    private function getCurrentPlayerBetCached(
-        CacheInterface $cache,
-        BetRepository $betRepository,
-        int $userId,
-        int $currentMatchday
-    ): array {
-        $cacheKey = $this->cacheKeyCurrentPlayerBet($userId);
-
-        return $cache->get($cacheKey, function (ItemInterface $item) use ($betRepository, $currentMatchday, $userId) {
-            $item->expiresAfter(self::CACHE_TTL);
-            return $betRepository->findArrayCurrentPlayerBet($currentMatchday, $userId);
-        });
-    }
-
-    private function mapBets(array $bets): array
+    private function getLeaderBoardData(): array
     {
-        $out = [];
-        foreach ($bets as $b) {
-            $game = $b->getGame();
-            $out[] = [
-                'gameId' => $game?->getId(),
-                'homeGoals' => $b->getHomeGoals(),
-                'awayGoals' => $b->getAwayGoals(),
-            ];
-        }
-        return $out;
-    }
-
-    private function cacheKeyGames(int $matchday): string
-    {
-        return sprintf('games.view.matchday.%d', $matchday);
-    }
-
-    private function cacheKeyCurrentPlayerBet(int $userId): string
-    {
-        return sprintf('player.currentBet.%d', $userId);
+        return $this->userStatsRepository->getLeaders();
     }
 }
