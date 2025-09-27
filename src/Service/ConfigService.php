@@ -17,7 +17,7 @@ readonly class ConfigService
      */
     public function get(string $key): ?string
     {
-        return $this->cache->getConfig($key) ?? $this->repo->findOneBy(['configKey' => $key]);
+        return $this->cache->getConfig($key) ?? $this->repo->findOneBy(['configKey' => $key])->getConfigValue();
     }
 
     /**
