@@ -33,6 +33,7 @@ applications:
 
     relationships:
       database: {}
+      redis: {}
 
     mounts:
       var/cache:
@@ -46,6 +47,8 @@ applications:
         APP_DEBUG: '0'
 
 services:
+  redis:
+    type: redis:7.0
   database:
     type: mariadb:11.8
 
