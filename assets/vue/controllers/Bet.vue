@@ -90,7 +90,6 @@ const formattedDate = computed(() => {
   return date.toLocaleDateString('de-DE', {
     day: '2-digit',
     month: '2-digit',
-    year: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
@@ -100,10 +99,10 @@ const formattedDate = computed(() => {
 const matchdayLabel = computed(() => {
   let label = ''
   if (props.competition === 'bl1') {
-    label = '<span>1. Bundesliga</span><span>' + props.matchday + '. Spieltag</span>'
+    label = '1. Bundesliga - ' + props.matchday + '. Spieltag'
   }
   if (props.competition === 'dfb') {
-    label = '<span>DFB-Pokal</span><span>' + props.matchday + '. Runde</span>'
+    label = 'DFB-Pokal - ' + props.matchday + '. Runde'
   }
   return label
 });
@@ -149,9 +148,10 @@ const fmt = (v: number | null | undefined) => {
   <div class="bet-container">
     <div v-if="loading" class="loading">{{ loadingMessage }}</div>
     <div class="game-info">
-      <div class="date">{{ formattedDate }}</div>
-      <BetTimer v-if="interaction" :date="props.date"/>
-      <div v-else></div>
+      <div class="game-time">
+        <div class="date">{{ formattedDate }}</div>
+        <BetTimer v-if="interaction" :date="props.date"/>
+      </div>
       <div class="matchday-label">{{ matchdayLabel }}</div>
     </div>
 
