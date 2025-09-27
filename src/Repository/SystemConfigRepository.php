@@ -3,15 +3,18 @@
 namespace App\Repository;
 
 use App\Entity\SystemConfig;
+use App\Service\CachingService;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Exception;
+use Psr\Cache\InvalidArgumentException;
 
 /**
  * @extends ServiceEntityRepository<SystemConfig>
  */
 class SystemConfigRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, private readonly CachingService $cache)
     {
         parent::__construct($registry, SystemConfig::class);
     }
@@ -28,10 +31,15 @@ class SystemConfigRepository extends ServiceEntityRepository
 
     public function set(string $key, ?string $value): void
     {
-        $em = $this->getEntityManager();
+        $em     = $this->getEntityManager();
         $config = $this->find($key) ?? (new SystemConfig())->setConfigKey($key);
         $config->setValue($value);
-        $em->persist($config);
-        $em->flush();
+        try {
+            $em->persist($config);
+            $em->flush();
+            $this->cache->deleteConfig($key);
+        } catch (Exception $e) {
+            throw new \RuntimeException('Could not persist config: ' . $e->getMessage());
+        }
     }
 }
