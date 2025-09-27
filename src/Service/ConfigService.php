@@ -25,7 +25,7 @@ readonly class ConfigService
      */
     public function set(string $key, ?string $value): void
     {
-        $this->repo->set($key, $value);
+        $this->repo->set($key, $value, $this->cache);
         $this->cache->deleteConfig($key);
     }
 }
