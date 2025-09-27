@@ -16,8 +16,9 @@
 .bet-container {
   display: grid;
   grid-template-columns: 1fr;
+  justify-items: center;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  background-color: $background-color-darkest;
+  background: linear-gradient(90deg, $background-color-darkest 0%, $background-color-dark 50%, $background-color-darkest 100%);
   margin: $md $tn;
   padding: $tn;
   position: relative;
@@ -35,38 +36,41 @@
     font-size: 2rem;
   }
 
+  .bet-timer {
+    padding: $tn;
+    &.active {
+      color: $primary-green-light;
+    }
+
+    &.warning {
+      color: orange;
+    }
+
+    &.error {
+      color: $primary-red;
+    }
+  }
+
+  .matchday-label {
+    padding: $tn;
+    text-align: center;
+    font-size: .85rem;
+    font-weight: 300;
+  }
   .bet-game, .game-info {
     padding: $tn;
   }
 
   .game-info {
     display: flex;
-    flex-direction: column;
-    font-size: .75rem;
-    padding: $tn;
-    font-weight: 300;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    font-size: 1rem;
+    padding: $tn $sm;
+    font-weight: 400;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     margin-bottom: $tn;
-    background: linear-gradient(90deg, $background-color-darkest 0%, $background-color-dark 50%, $background-color-darkest 100%);
-    .game-time {
-      display: flex;
-      justify-content: space-between;
-    }
-    .bet-timer {
-      text-align: center;
-
-      &.active {
-        color: $primary-green-light;
-      }
-
-      &.warning {
-        color: orange;
-      }
-
-      &.error {
-        color: $primary-red;
-      }
-    }
   }
 
   .bet-community {

@@ -88,6 +88,7 @@ const formattedDate = computed(() => {
   const date = new Date(props.date);
 
   return date.toLocaleDateString('de-DE', {
+    weekday: 'short',
     day: '2-digit',
     month: '2-digit',
     hour: '2-digit',
@@ -148,14 +149,10 @@ const fmt = (v: number | null | undefined) => {
   <div class="bet-container">
     <div v-if="loading" class="loading">{{ loadingMessage }}</div>
     <div class="game-info">
-      <div class="game-time">
         <div class="date">{{ formattedDate }}</div>
-        <BetTimer v-if="interaction" :date="props.date"/>
-      </div>
-      <div class="matchday-label">{{ matchdayLabel }}</div>
+      <BetTimer :date="props.date"/>
     </div>
-
-
+    <div class="matchday-label">{{ matchdayLabel }}</div>
     <div class="bet-game">
       <div class="home">{{ props.homeClub }}</div>
       <div class="result">
@@ -165,7 +162,6 @@ const fmt = (v: number | null | undefined) => {
       </div>
       <div class="away">{{ props.awayClub }}</div>
     </div>
-
 
     <div v-if="interaction" class="bet-result">
       <div class="home">
@@ -208,11 +204,6 @@ const fmt = (v: number | null | undefined) => {
       <div v-else class="points">
         {{ betPoints }} Punkte
       </div>
-    </div>
-    <div v-else-if="!interaction" class="bet-until">
-      Spiel findet in
-      <BetTimer :date="props.date"></BetTimer>
-      statt.
     </div>
 
 
