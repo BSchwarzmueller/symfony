@@ -14,7 +14,7 @@ use Psr\Cache\InvalidArgumentException;
  */
 class SystemConfigRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry, private readonly CachingService $cache)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, SystemConfig::class);
     }
@@ -29,7 +29,7 @@ class SystemConfigRepository extends ServiceEntityRepository
         return $this->findOneBy(['configKey' => $key]);
     }
 
-    public function set(string $key, ?string $value): void
+    public function set(string $key, ?string $value, CachingService $cache): void
     {
         $em     = $this->getEntityManager();
         $config = $this->find($key) ?? (new SystemConfig())->setConfigKey($key);
@@ -37,7 +37,7 @@ class SystemConfigRepository extends ServiceEntityRepository
         try {
             $em->persist($config);
             $em->flush();
-            $this->cache->deleteConfig($key);
+            $cache->deleteConfig($key);
         } catch (Exception $e) {
             throw new \RuntimeException('Could not persist config: ' . $e->getMessage());
         }
