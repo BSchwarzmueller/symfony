@@ -102,7 +102,7 @@ class CachingService
     /**
      * @throws InvalidArgumentException
      */
-    public function deleteCurrentMatchdayCache():void
+    public function deleteCurrentMatchdayCache(): void
     {
         $this->cache->delete(self::CURRENT_MATCHDAY_CACHE);
     }

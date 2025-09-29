@@ -158,7 +158,14 @@ class BetController extends AbstractController
     private function getCurrentMatchDay(): array
     {
         try {
-            return $this->cache->getCurrentMatchdayGames($this->configService->get('currentMatchday'));
+            $currentMatchDay = $this->configService->get('currentMatchday');
+
+            if(!is_string($currentMatchDay)) {
+                $this->logger->error('invalid matchday');
+                throw new Exception('Current matchday is not set');
+            }
+
+            return $this->cache->getCurrentMatchdayGames((int)$currentMatchDay);
         } catch (Exception $e) {
             $this->logger->error('Error fetching current matchday', ['error' => $e->getMessage()]);
             throw new RuntimeException($e->getMessage(), previous: $e);
