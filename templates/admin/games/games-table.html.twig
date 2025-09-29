@@ -13,10 +13,10 @@
        <tr>
            <td>{{ game.matchDay }}</td>
            <td>{{ game.competition }}</td>
-           <td>{{ game.homeClub.name }}</td>
+           <td>{{ game.homeClub.shortName }}</td>
            <td>{{ game.homeGoals ?? '-' }}</td>
            <td>{{ game.awayGoals ?? '-' }}</td>
-           <td>{{ game.awayClub.name }}</td>
+           <td>{{ game.awayClub.shortName }}</td>
        </tr>
     {% endfor %}
 </table>

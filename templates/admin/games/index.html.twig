@@ -17,6 +17,9 @@
                 {% include '/admin/games/games-table.html.twig' with { games: futureGames } %}
             </div>
             <div>
+                {% include '/admin/games/games-table.html.twig' with { games: activeGames } %}
+            </div>
+            <div>
                 {% include '/admin/games/games-table.html.twig' with { games: playedGames } %}
             </div>
         </div>

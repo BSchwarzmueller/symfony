@@ -122,6 +122,7 @@ class DashboardController extends AbstractController
         try {
             $games = [
                 'playedGames' => $gameRepository->getPlayedGames(),
+                'activeGames' => $gameRepository->getActiveGames(),
                 'futureGames' => $gameRepository->getFutureGames()
             ];
         } catch (\Exception $e) {
@@ -164,6 +165,8 @@ class DashboardController extends AbstractController
 
             if ($this->validateGameDtoArray($gameDtoArray)) {
                 $gameRepository->createOrUpdateGames($games);
+                $this->logger->info('Games updated!');
+                $this->logger->info(implode($games));
                 $cache->deleteCurrentMatchdayCache();
             }
 

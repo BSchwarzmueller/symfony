@@ -8,6 +8,7 @@ use App\Entity\Game;
 use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Validator\Validation;
 
 /**
@@ -88,18 +89,29 @@ class GameRepository extends ServiceEntityRepository
 
     public function getFutureGames(): array
     {
-        return $this->findBy([
-            'homeGoals' => null,
-            'awayGoals' => null,
-        ]);
+        return $this->createQueryBuilder('g')
+            ->where('g.homeGoals = -1')
+            ->andWhere('g.awayGoals = -1')
+            ->orderBy('g.date', 'ASC')
+            ->getQuery()->getArrayResult();
+    }
+
+    public function getActiveGames(): array
+    {
+        return $this->createQueryBuilder('g')
+            ->where('g.homeGoals > -1')
+            ->andWhere('g.awayGoals > -1')
+            ->orderBy('g.date', 'ASC')
+            ->getQuery()->getArrayResult();
     }
 
     public function getPlayedGames(): array
     {
         return $this->createQueryBuilder('g')
-            ->andWhere('g.homeGoals IS NOT NULL AND g.awayGoals IS NOT NULL')
-            ->orderBy('g.competition', 'ASC')->orderBy('g.matchday', 'DESC')
-            ->getQuery()->getResult();
+            ->where('g.processed = true')
+            ->orderBy('g.competition', 'ASC')
+            ->orderBy('g.matchday', 'DESC')
+            ->getQuery()->getArrayResult();
     }
 
     /**

@@ -1,8 +1,8 @@
 .admin-games-tables {
-    display: flex;
+    display: grid;#
+    grid-template-columns: 1fr 1fr 1fr;
     padding: $md;
     margin: 0 auto;
-    justify-content: space-evenly;
     td {
         padding:$tn;
     }
