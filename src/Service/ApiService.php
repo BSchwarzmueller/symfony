@@ -48,6 +48,7 @@ class ApiService {
 
     private function fetch(string $url): array
     {
+        $this->logger->info('Fetching games from API', ['url' => $url]);
         try {
             $response = $this->httpClient->request('GET', $url);
             return $response->toArray();

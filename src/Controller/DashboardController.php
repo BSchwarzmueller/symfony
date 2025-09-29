@@ -160,7 +160,12 @@ class DashboardController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $competition  = $form->get('competition')->getData();
             $matchDay     = $form->get('matchDay')->getData();
+
+            $this->logger->info('Updating games for ' . $matchDay .' / ' . $competition);
+
             $games        = $this->getGamesFromApi($matchDay, $competition, $api);
+            $this->logger->info('Games fetched!');
+            $this->logger->info(implode($games));
             $gameDtoArray = $this->factoryService->createGameDtoArray($games);
 
             if ($this->validateGameDtoArray($gameDtoArray)) {

@@ -13,6 +13,7 @@
     {% for club in clubs %}
         <tr>
             <td>{{ club.name }}</td>
+            <td>{{ club.shortName }}</td>
             <td><img style="max-width:44px;max-height:44px;" src="{{ club.logoUrl }}" /></td>
         </tr>
     {% endfor %}
