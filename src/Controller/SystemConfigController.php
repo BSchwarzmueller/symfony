@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\SystemConfig;
 use App\Repository\SystemConfigRepository;
+use App\Service\CachingService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,11 +17,18 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 class SystemConfigController extends AbstractController
 {
+    public function __construct(private readonly CachingService $cache)
+    {
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
     #[Route(path: '/admin/config/add', name: 'admin.config.add')]
     public function addSystemConfig(
         Request $request,
         SystemConfigRepository $repo,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
     ): Response {
         $form = $this->createFormBuilder()
             ->add('key', TextType::class, [
@@ -48,6 +56,7 @@ class SystemConfigController extends AbstractController
                 $em->persist($config);
                 $em->flush();
 
+                $this->cache->deleteConfig($data['key']);
                 $this->addFlash('success', 'Neuer Config-Eintrag gespeichert!');
                 return $this->redirectToRoute('admin.config.index'); // oder wohin du willst
             }

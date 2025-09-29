@@ -13,6 +13,7 @@ class CachingService
 {
     const THIRTY_MINUTES = 30 * 60;
     const A_DAY = 24 * 60 * 60;
+    const FIVE_MINUTES = 5 * 60;
     const BETS_CACHE = 'bets';
     const OPEN_GAMES_CACHE = 'openGames';
     const CURRENT_MATCHDAY_CACHE = 'currentMatchday';
@@ -47,7 +48,7 @@ class CachingService
     {
         return $this->cache->get(self::CURRENT_MATCHDAY_CACHE,
             function (ItemInterface $item) use ($currentMatchday) {
-                $item->expiresAfter(self::A_DAY);
+                $item->expiresAfter(self::FIVE_MINUTES);
                 return $this->gameRepository->findArrayByMatchday($currentMatchday);
             });
     }
@@ -84,7 +85,8 @@ class CachingService
     public function getConfig(string $key)
     {
         return $this->cache->get(self::CONFIG_CACHE . self::CACHE_SEPARATOR . $key,
-            function () use ($key) {
+            function (ItemInterface $item) use ($key) {
+                $item->expiresAfter(self::A_DAY);
                 $config = $this->systemConfigRepository->get($key);
                 return $config?->getConfigValue();
             });

@@ -6,7 +6,7 @@ use App\Repository\SystemConfigRepository;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Contracts\Cache\CacheInterface;
 
-readonly class ConfigService
+class ConfigService
 {
     public function __construct(private SystemConfigRepository $repo,
                                 private CachingService $cache
@@ -17,7 +17,7 @@ readonly class ConfigService
      */
     public function get(string $key): ?string
     {
-        return $this->cache->getConfig($key) ?? $this->repo->findOneBy(['configKey' => $key])->getConfigValue();
+        return $this->cache->getConfig($key);
     }
 
     /**
