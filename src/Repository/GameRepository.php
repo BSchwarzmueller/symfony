@@ -7,6 +7,7 @@ use App\Entity\Club;
 use App\Entity\Game;
 use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Validator\Validation;
@@ -89,29 +90,31 @@ class GameRepository extends ServiceEntityRepository
 
     public function getFutureGames(): array
     {
-        return $this->createQueryBuilder('g')
-            ->where('g.homeGoals = -1')
-            ->andWhere('g.awayGoals = -1')
-            ->orderBy('g.date', 'ASC')
-            ->getQuery()->getArrayResult();
+        $criteria = Criteria::create()
+            ->where(Criteria::expr()->eq('homeGoals', -1))
+            ->andWhere(Criteria::expr()->eq('awayGoals', -1))
+            ->orderBy(['date' => 'ASC']);
+
+        return $this->matching($criteria)->toArray();
     }
 
     public function getActiveGames(): array
     {
-        return $this->createQueryBuilder('g')
-            ->where('g.homeGoals > -1')
-            ->andWhere('g.awayGoals > -1')
-            ->orderBy('g.date', 'ASC')
-            ->getQuery()->getArrayResult();
+        $criteria = Criteria::create()
+            ->where(Criteria::expr()->gte('homeGoals', 0))
+            ->andWhere(Criteria::expr()->gte('awayGoals', 0))
+            ->orderBy(['date' => 'ASC']);
+
+        return $this->matching($criteria)->toArray();
     }
 
     public function getPlayedGames(): array
     {
-        return $this->createQueryBuilder('g')
-            ->where('g.processed = true')
-            ->orderBy('g.competition', 'ASC')
-            ->orderBy('g.matchday', 'DESC')
-            ->getQuery()->getArrayResult();
+        $criteria = Criteria::create()
+            ->where(Criteria::expr()->eq('processed', true))
+            ->orderBy(['date' => 'ASC']);
+
+        return $this->matching($criteria)->toArray();
     }
 
     /**
@@ -123,36 +126,26 @@ class GameRepository extends ServiceEntityRepository
 
         /** @var GameDto $gameDto */
         foreach ($games as $gameDto) {
-            $openLigaId  = $gameDto->getOpenLigaId();
-            $homeId      = $gameDto->getHomeId();
-            $awayId      = $gameDto->getAwayId();
-            $homeScore   = $gameDto->getHomeScore();
-            $awayScore   = $gameDto->getAwayScore();
-            $date        = $gameDto->getDate();
-            $matchday    = $gameDto->getMatchday();
-            $competition = $gameDto->getCompetition();
-            $season      = $gameDto->getSeason();
-            $processed   = $gameDto->getProcessed();
 
-            $existingGame = $this->findOneBy(['openLigaId' => $openLigaId]);
+            $existingGame = $this->findOneBy(['openLigaId' => $gameDto->getOpenLigaId()]);
 
             if ($existingGame === null) {
                 $this->create(
-                    $openLigaId,
-                    $homeId,
-                    $awayId,
-                    $homeScore,
-                    $awayScore,
-                    $date,
-                    $matchday,
-                    $competition,
-                    $season,
-                    $processed
+                    $gameDto->getOpenLigaId(),
+                    $gameDto->getHomeId(),
+                    $gameDto->getAwayId(),
+                    $gameDto->getHomeScore(),
+                    $gameDto->getAwayScore(),
+                    $gameDto->getDate(),
+                    $gameDto->getMatchday(),
+                    $gameDto->getCompetition(),
+                    $gameDto->getSeason(),
+                    $gameDto->getProcessed()
                 );
             } else {
-                $existingGame->setHomeGoals($homeScore);
-                $existingGame->setAwayGoals($awayScore);
-                $existingGame->setDate($date);
+                $existingGame->setHomeGoals($gameDto->getHomeScore());
+                $existingGame->setAwayGoals($gameDto->getAwayScore());
+
                 $em->persist($existingGame);
                 $em->flush();
             }

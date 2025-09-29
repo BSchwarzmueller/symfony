@@ -162,16 +162,15 @@ class DashboardController extends AbstractController
             $matchDay     = $form->get('matchDay')->getData();
 
             $this->logger->info('Updating games for ' . $matchDay .' / ' . $competition);
-
             $games        = $this->getGamesFromApi($matchDay, $competition, $api);
-            $this->logger->info('Games fetched!');
-            $this->logger->info(implode($games));
-            $gameDtoArray = $this->factoryService->createGameDtoArray($games);
 
+            $this->logger->info('Games fetched!');
+
+            $gameDtoArray = $this->factoryService->createGameDtoArray($games);
+            $this->logger->info('Games transferred to DTO!');
             if ($this->validateGameDtoArray($gameDtoArray)) {
                 $gameRepository->createOrUpdateGames($games);
                 $this->logger->info('Games updated!');
-                $this->logger->info(implode($games));
                 $cache->deleteCurrentMatchdayCache();
             }
 

@@ -50,10 +50,10 @@ class ApiService {
     {
         $this->logger->info('Fetching games from API', ['url' => $url]);
         try {
-            $response = $this->httpClient->request('GET', $url);
-            return $response->toArray();
+            return $this->httpClient->request('GET', $url)->toArray();
         } catch (Exception $e) {
             $this->logger->error('Error while fetching games from API', ['error' => $e->getMessage()]);
+            return [];
         }
     }
 }

@@ -21,16 +21,16 @@ class ClubRepository extends ServiceEntityRepository
         $em = $this->getEntityManager();
         $club = $this->findOneBy(['openLigaId' => $id]);
 
-        if (!$club) {
+        if ($club === null) {
             $club = new Club();
             $club->setOpenLigaId($id);
-            $em->persist($club);
         }
 
         $club->setName($name);
         $club->setShortName($shortName);
         $club->setLogoUrl($logoUrl);
 
+        $em->persist($club);
         $em->flush();
     }
 
