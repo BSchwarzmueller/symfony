@@ -15,6 +15,7 @@ use Exception;
 readonly class FactoryService
 {
     public const OPEN_BET_STATUS = 'open';
+
     public function __construct(private EntityManagerInterface $entityManager)
     {
     }
@@ -63,17 +64,34 @@ readonly class FactoryService
 
     public function createGameDto(array $game): GameDto
     {
-        return new GameDto(
-            $game['matchID'],
-            $game['team1']['teamId'],
-            $game['team2']['teamId'],
-            !empty($game['matchResults'][1]) ? $game['matchResults'][1]['pointsTeam1'] : -1,
-            !empty($game['matchResults'][1]) ? $game['matchResults'][1]['pointsTeam2'] : -1,
-            $game['matchDateTime'],
-            $game['group']['groupOrderID'],
-            $game['leagueShortcut'],
-            $game['leagueSeason']
-        );
+        $gameDto = new GameDto();
+        $gameDto->setOpenLigaId($game['matchID']);;
+        $gameDto->setHomeId($game['team1']['teamId']);
+        $gameDto->setAwayId($game['team2']['teamId']);
+        $gameDto->setDate($game['matchDateTime']);
+        $gameDto->setMatchday($game['group']['groupOrderID']);
+        $gameDto->setCompetition($game['leagueShortcut']);
+        $gameDto->setSeason($game['leagueSeason']);
+        $gameDto->setProcessed($game['matchIsFinished']);
+
+        $homeScore = -1;
+        $awayScore = -1;
+
+        // Erste Halbzeit
+        if ($game['matchResults'][1] === null && $game['matchResults'][0] !== null) {
+            $homeScore = $game['matchResults'][0]['pointsTeam1'];
+            $awayScore = $game['matchResults'][0]['pointsTeam2'];
+        }
+        // Zweite Halbzeit
+        if ($game['matchResults'][1] !== null) {
+            $homeScore = $game['matchResults'][1]['pointsTeam1'];
+            $awayScore = $game['matchResults'][1]['pointsTeam2'];
+        }
+
+        $gameDto->setHomeScore($homeScore);
+        $gameDto->setAwayScore($awayScore);
+
+        return $gameDto;
     }
 
     public function createBetDtoFromRequestData(array $data): ?CreateBetDto

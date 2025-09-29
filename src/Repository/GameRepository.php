@@ -61,10 +61,8 @@ class GameRepository extends ServiceEntityRepository
         int               $matchday,
         string            $competition,
         string            $season,
+        bool              $processed
     ): void {
-        if ($this->findOneBy(['openLigaId' => $openLigaId]) !== null) {
-            return;
-        }
         $em = $this->getEntityManager();
         /** @var Club|null $homeClub */
         $homeClub = $em->getRepository(Club::class)->findOneBy(['openLigaId' => $homeId]);
@@ -82,10 +80,10 @@ class GameRepository extends ServiceEntityRepository
         $game->setCompetition($competition);
         $game->setSeason($season);
         $game->setDate($date);
-        $game->setProcessed(false);
+        $game->setProcessed($processed);
 
-        $this->getEntityManager()->persist($game);
-        $this->getEntityManager()->flush();
+        $em->persist($game);
+        $em->flush();
     }
 
     public function getFutureGames(): array
@@ -118,10 +116,11 @@ class GameRepository extends ServiceEntityRepository
             $awayId      = $gameDto->getAwayId();
             $homeScore   = $gameDto->getHomeScore();
             $awayScore   = $gameDto->getAwayScore();
-            $date        = new \DateTimeImmutable($gameDto->getDate());
+            $date        = $gameDto->getDate();
             $matchday    = $gameDto->getMatchday();
             $competition = $gameDto->getCompetition();
             $season      = $gameDto->getSeason();
+            $processed   = $gameDto->getProcessed();
 
             $existingGame = $this->findOneBy(['openLigaId' => $openLigaId]);
 
@@ -135,7 +134,8 @@ class GameRepository extends ServiceEntityRepository
                     $date,
                     $matchday,
                     $competition,
-                    $season
+                    $season,
+                    $processed
                 );
             } else {
                 $existingGame->setHomeGoals($homeScore);

@@ -2,9 +2,7 @@
 
 {% block admin_dashboard_content %}
     <h2>Clubs</h2>
-    {% if clubs is empty %}
         <a href="{{ path('admin.clubs.update') }}">Clubs via API laden</a>
-    {% else %}
         <table>
             <thead>
             <tr>

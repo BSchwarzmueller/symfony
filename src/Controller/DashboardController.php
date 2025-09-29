@@ -88,7 +88,7 @@ class DashboardController extends AbstractController
         Request        $request,
         ClubRepository $clubRepository,
         ApiService     $api
-    ): RedirectResponse {
+    ): Response {
         $form = $this->createFormBuilder()
             ->add('competition', TextType::class,
                 ['label' => 'Competition', 'required' => true,]
@@ -108,7 +108,12 @@ class DashboardController extends AbstractController
                 $this->logger->error('No clubs from API');
             }
             $clubRepository->storeClubArray($clubs);
+            return $this->redirectToRoute('admin.clubs.index');
         }
+
+        return $this->render('admin/clubs/update.html.twig', [
+            'form' => $form->createView(),
+        ]);
     }
 
     #[Route(path: '/admin/games', name: 'admin.games.index')]

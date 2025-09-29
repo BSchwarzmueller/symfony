@@ -49,6 +49,20 @@ class GameDto
     #[Assert\GreaterThan(1900)]
     private ?int $season = null;
 
+    #[Assert\NotBlank]
+    #[Assert\Type('boolean')]
+    private ?bool $processed = null;
+
+    public function getProcessed(): ?bool
+    {
+        return $this->processed;
+    }
+
+    public function setProcessed(?bool $processed): void
+    {
+        $this->processed = $processed;
+    }
+
     public function getOpenLigaId(): ?int
     {
         return $this->openLigaId;
