@@ -78,12 +78,12 @@ readonly class FactoryService
         $awayScore = -1;
 
         // Erste Halbzeit
-        if ($game['matchResults'][1] === null && $game['matchResults'][0] !== null) {
+        if (!isset($game['matchResults'][1]) && isset($game['matchResults'][0])) {
             $homeScore = $game['matchResults'][0]['pointsTeam1'];
             $awayScore = $game['matchResults'][0]['pointsTeam2'];
         }
         // Zweite Halbzeit
-        if ($game['matchResults'][1] !== null) {
+        if (isset($game['matchResults'][1])) {
             $homeScore = $game['matchResults'][1]['pointsTeam1'];
             $awayScore = $game['matchResults'][1]['pointsTeam2'];
         }
