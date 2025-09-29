@@ -9,6 +9,7 @@ use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\Order;
+use Doctrine\ORM\Query\Expr\OrderBy;
 use Doctrine\Persistence\ManagerRegistry;
 
 
@@ -92,8 +93,7 @@ class GameRepository extends ServiceEntityRepository
     {
         $criteria = Criteria::create()
             ->where(Criteria::expr()->eq('homeGoals', -1))
-            ->andWhere(Criteria::expr()->eq('awayGoals', -1))
-            ->orderBy(['date' => Order::Ascending]);
+            ->andWhere(Criteria::expr()->eq('awayGoals', -1));
 
         return $this->matching($criteria)->toArray();
     }
@@ -102,8 +102,7 @@ class GameRepository extends ServiceEntityRepository
     {
         $criteria = Criteria::create()
             ->where(Criteria::expr()->gte('homeGoals', 0))
-            ->andWhere(Criteria::expr()->gte('awayGoals', 0))
-            ->orderBy(['date' => Order::Ascending]);
+            ->andWhere(Criteria::expr()->gte('awayGoals', 0));
 
         return $this->matching($criteria)->toArray();
     }
@@ -111,8 +110,7 @@ class GameRepository extends ServiceEntityRepository
     public function getPlayedGames(): array
     {
         $criteria = Criteria::create()
-            ->where(Criteria::expr()->eq('processed', true))
-            ->orderBy(['date' => Order::Ascending]);
+            ->where(Criteria::expr()->eq('processed', true));
 
         return $this->matching($criteria)->toArray();
     }
