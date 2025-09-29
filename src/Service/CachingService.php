@@ -82,13 +82,12 @@ class CachingService
     /**
      * @throws InvalidArgumentException
      */
-    public function getConfig(string $key)
+    public function getConfig(string $key): ?string
     {
         return $this->cache->get(self::CONFIG_CACHE . self::CACHE_SEPARATOR . $key,
             function (ItemInterface $item) use ($key) {
                 $item->expiresAfter(self::A_DAY);
-                $config = $this->systemConfigRepository->get($key);
-                return $config?->getConfigValue();
+                return $this->systemConfigRepository->get($key)?->getConfigValue();
             });
     }
 

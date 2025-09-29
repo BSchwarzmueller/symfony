@@ -26,7 +26,7 @@ class SystemConfigController extends AbstractController
      */
     #[Route(path: '/admin/config/add', name: 'admin.config.add')]
     public function addSystemConfig(
-        Request $request,
+        Request                $request,
         SystemConfigRepository $repo,
         EntityManagerInterface $em,
     ): Response {
@@ -75,9 +75,8 @@ class SystemConfigController extends AbstractController
         Request                $request,
         SystemConfigRepository $repo,
         EntityManagerInterface $em,
-        CacheInterface $cache
-    ): Response
-    {
+        CachingService         $cache
+    ): Response {
         $form = $this->getForm($repo->getAll());
         $form->handleRequest($request);
 
@@ -90,7 +89,7 @@ class SystemConfigController extends AbstractController
                     $config->setConfigValue($value);
                     $em->persist($config);
 
-                    $cache->delete('config_' . $key);
+                    $cache->deleteConfig($key);
                 }
             }
             $em->flush();
@@ -113,10 +112,10 @@ class SystemConfigController extends AbstractController
                 $config->getConfigKey(),
                 TextType::class,
                 [
-                    'label' => $config->getConfigKey(),
+                    'label'    => $config->getConfigKey(),
                     'required' => false,
-                    'data' => $config->getConfigValue(),
-                    'attr' => ['style' => 'width:50%;margin:8px 16px;padding:8px 4px;']
+                    'data'     => $config->getConfigValue(),
+                    'attr'     => ['style' => 'width:50%;margin:8px 16px;padding:8px 4px;']
                 ]
             );
         }

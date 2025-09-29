@@ -17,7 +17,7 @@ class ConfigService
      */
     public function get(string $key): ?string
     {
-        return $this->cache->getConfig($key) ?? $this->repo->get($key)?->getConfigValue();
+        return $this->cache->getConfig($key);
     }
 
     /**
@@ -26,6 +26,5 @@ class ConfigService
     public function set(string $key, ?string $value): void
     {
         $this->repo->set($key, $value, $this->cache);
-        $this->cache->deleteConfig($key);
     }
 }
