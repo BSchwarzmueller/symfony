@@ -2,18 +2,20 @@
 
 namespace App\Repository;
 
+use App\Dto\GameDto;
 use App\Entity\Club;
 use App\Entity\Game;
 use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @extends ServiceEntityRepository<Game>
  */
 class GameRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, private readonly Validation $validator)
     {
         parent::__construct($registry, Game::class);
     }
@@ -31,6 +33,7 @@ class GameRepository extends ServiceEntityRepository
             ->getResult();
 
     }
+
     public function findArrayByMatchday(int $matchday, ?string $sort = 'ASC'): array
     {
         return $this->createQueryBuilder('g')
@@ -56,10 +59,9 @@ class GameRepository extends ServiceEntityRepository
         int|null          $awayGoals,
         DateTimeImmutable $date,
         int               $matchday,
-        ?string           $competition = 'bl1',
-        ?string           $season = '2025',
-    ): void
-    {
+        string            $competition,
+        string            $season,
+    ): void {
         if ($this->findOneBy(['openLigaId' => $openLigaId]) !== null) {
             return;
         }
@@ -105,67 +107,44 @@ class GameRepository extends ServiceEntityRepository
     /**
      * @throws \Exception
      */
-    public function createGames(array $games, int $matchday): void
-    {
-        foreach ($games as $game) {
-
-            $openLigaId = $game['matchID'];
-
-            $homeId = $game['team1']['teamId'];
-            $awayId = $game['team2']['teamId'];
-
-            $homeScore = !empty($game['matchResults'][1]) ? $game['matchResults'][1]['pointsTeam1'] : null;
-            $awayScore = !empty($game['matchResults'][1]) ? $game['matchResults'][1]['pointsTeam2'] : null;
-
-            $date = new DateTimeImmutable($game['matchDateTime']);
-
-            $this->create($openLigaId, $homeId, $awayId, $homeScore, $awayScore, $date, $matchday);
-        }
-    }
-
-    public function updateGames(array $games): void
+    public function createOrUpdateGames(array $games): void
     {
         $em = $this->getEntityManager();
 
-        foreach ($games as $game) {
-            $openLigaId = $game['matchID'] ?? null;
-            if ($openLigaId === null) {
-                continue;
+        /** @var GameDto $gameDto */
+        foreach ($games as $gameDto) {
+            $openLigaId  = $gameDto->getOpenLigaId();
+            $homeId      = $gameDto->getHomeId();
+            $awayId      = $gameDto->getAwayId();
+            $homeScore   = $gameDto->getHomeScore();
+            $awayScore   = $gameDto->getAwayScore();
+            $date        = new \DateTimeImmutable($gameDto->getDate());
+            $matchday    = $gameDto->getMatchday();
+            $competition = $gameDto->getCompetition();
+            $season      = $gameDto->getSeason();
+
+            $existingGame = $this->findOneBy(['openLigaId' => $openLigaId]);
+
+            if ($existingGame === null) {
+                $this->create(
+                    $openLigaId,
+                    $homeId,
+                    $awayId,
+                    $homeScore,
+                    $awayScore,
+                    $date,
+                    $matchday,
+                    $competition,
+                    $season
+                );
+            } else {
+                $existingGame->setHomeGoals($homeScore);
+                $existingGame->setAwayGoals($awayScore);
+                $existingGame->setDate($date);
+                $em->persist($existingGame);
+                $em->flush();
             }
-
-            /** @var Game|null $entity */
-            $entity = $this->findOneBy(['openLigaId' => $openLigaId]);
-            if ($entity === null) {
-                // Optional: wenn Spiel noch nicht existiert, überspringen
-                continue;
-            }
-
-            // Scores (falls vorhanden)
-            $homeScore = !empty($game['matchResults'][1]) ? $game['matchResults'][1]['pointsTeam1'] : null;
-            $awayScore = !empty($game['matchResults'][1]) ? $game['matchResults'][1]['pointsTeam2'] : null;
-
-            // Datum (falls vorhanden)
-            if (!empty($game['matchDateTime'])) {
-                try {
-                    $date = new DateTimeImmutable($game['matchDateTime']);
-                    $entity->setDate($date);
-                } catch (\Throwable) {
-                    // Ignoriere ungültiges Datum
-                }
-            }
-
-            // Tore aktualisieren
-            $entity->setHomeGoals($homeScore);
-            $entity->setAwayGoals($awayScore);
-
-            // Optional: processed zurücksetzen, wenn Ergebnis noch fehlt
-            if ($homeScore === null || $awayScore === null) {
-                $entity->setProcessed(false);
-            }
-
-            $em->persist($entity);
         }
-
-        $em->flush();
     }
 }
+

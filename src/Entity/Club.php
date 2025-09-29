@@ -22,6 +22,9 @@ class Club
     #[ORM\Column(nullable: true)]
     private ?int $openLigaId = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $shortName = null;
+
     public function setId(int $id): void
     {
         $this->id = $id;
@@ -64,6 +67,18 @@ class Club
     public function setOpenLigaId(?int $openLigaId): static
     {
         $this->openLigaId = $openLigaId;
+
+        return $this;
+    }
+
+    public function getShortName(): ?string
+    {
+        return $this->shortName;
+    }
+
+    public function setShortName(string $shortName): static
+    {
+        $this->shortName = $shortName;
 
         return $this;
     }

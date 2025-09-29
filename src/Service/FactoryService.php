@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Dto\CreateBetDto;
+use App\Dto\GameDto;
 use App\Entity\Bet;
 use App\Entity\Game;
 use App\Entity\User;
@@ -48,6 +49,30 @@ readonly class FactoryService
             $betDto->getGameId(),
             $betDto->getHomeGoals(),
             $betDto->getAwayGoals()
+        );
+    }
+
+    public function createGameDtoArray(array $games): array
+    {
+        $gameDtos = [];
+        foreach ($games as $game) {
+            $gameDtos[] = $this->createGameDto($game);
+        }
+        return $gameDtos;
+    }
+
+    public function createGameDto(array $game): GameDto
+    {
+        return new GameDto(
+            $game['matchID'],
+            $game['team1']['teamId'],
+            $game['team2']['teamId'],
+            !empty($game['matchResults'][1]) ? $game['matchResults'][1]['pointsTeam1'] : -1,
+            !empty($game['matchResults'][1]) ? $game['matchResults'][1]['pointsTeam2'] : -1,
+            $game['matchDateTime'],
+            $game['group']['groupOrderID'],
+            $game['leagueShortcut'],
+            $game['leagueSeason']
         );
     }
 

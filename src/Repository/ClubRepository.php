@@ -16,13 +16,37 @@ class ClubRepository extends ServiceEntityRepository
         parent::__construct($registry, Club::class);
     }
 
-    public function create(int $id, string $name, string $logoUrl): void
+    public function createOrUpdate(int $id, string $name, string $shortName, string $logoUrl): void
     {
-        $club = new Club();
-        $club->setOpenLigaId($id);
+        $em = $this->getEntityManager();
+        $club = $this->findOneBy(['openLigaId' => $id]);
+
+        if (!$club) {
+            $club = new Club();
+            $club->setOpenLigaId($id);
+            $em->persist($club);
+        }
+
         $club->setName($name);
+        $club->setShortName($shortName);
         $club->setLogoUrl($logoUrl);
-        $this->getEntityManager()->persist($club);
-        $this->getEntityManager()->flush();
+
+        $em->flush();
+    }
+
+    public function storeClubArray(array $clubs): void
+    {
+        if(empty($clubs)) {
+            return;
+        }
+
+        foreach($clubs as $club) {
+            $this->createOrUpdate(
+                $club['teamId'],
+                $club['teamName'],
+                $club['shortName'],
+                $club['teamIconUrl']
+            );
+        }
     }
 }
