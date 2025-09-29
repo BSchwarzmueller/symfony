@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Validation;
  */
 class GameRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry, private readonly Validation $validator)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Game::class);
     }
