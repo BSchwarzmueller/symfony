@@ -146,7 +146,6 @@ class DashboardController extends AbstractController
             $this->callApi($matchday, (int)$config->get('currentMatchday'), $gameRepository, $cache);
             return $this->redirectToRoute('admin.games.index');
         }
-
         return $this->render('admin/games/update.html.twig', [
             'form' => $form->createView(),
         ]);

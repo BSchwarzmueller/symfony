@@ -17,7 +17,7 @@ class ConfigService
      */
     public function get(string $key): ?string
     {
-        return $this->cache->getConfig($key);
+        return $this->cache->getConfig($key) ?? $this->repo->get($key)?->getConfigValue();
     }
 
     /**
