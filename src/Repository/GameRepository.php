@@ -8,9 +8,9 @@ use App\Entity\Game;
 use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\Order;
 use Doctrine\Persistence\ManagerRegistry;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\Validator\Validation;
+
 
 /**
  * @extends ServiceEntityRepository<Game>
@@ -93,7 +93,7 @@ class GameRepository extends ServiceEntityRepository
         $criteria = Criteria::create()
             ->where(Criteria::expr()->eq('homeGoals', -1))
             ->andWhere(Criteria::expr()->eq('awayGoals', -1))
-            ->orderBy(['date' => 'ASC']);
+            ->orderBy(['date' => Order::Ascending]);
 
         return $this->matching($criteria)->toArray();
     }
@@ -103,7 +103,7 @@ class GameRepository extends ServiceEntityRepository
         $criteria = Criteria::create()
             ->where(Criteria::expr()->gte('homeGoals', 0))
             ->andWhere(Criteria::expr()->gte('awayGoals', 0))
-            ->orderBy(['date' => 'ASC']);
+            ->orderBy(['date' => Order::Ascending]);
 
         return $this->matching($criteria)->toArray();
     }
@@ -112,7 +112,7 @@ class GameRepository extends ServiceEntityRepository
     {
         $criteria = Criteria::create()
             ->where(Criteria::expr()->eq('processed', true))
-            ->orderBy(['date' => 'ASC']);
+            ->orderBy(['date' => Order::Ascending]);
 
         return $this->matching($criteria)->toArray();
     }
